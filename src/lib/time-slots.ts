@@ -1,33 +1,35 @@
+// src/lib/time-slots.ts
 import type { WorkingHoursDay } from "@/lib/business-profile";
+import { getDateKeyInTimezone, getScheduleParts } from "@/lib/timezone";
 
-const DAY_KEYS: WorkingHoursDay["day"][] = [
-  "sun",
-  "mon",
-  "tue",
-  "wed",
-  "thu",
-  "fri",
-  "sat",
-];
+const MINUTES_PER_DAY = 24 * 60;
 
-function parseTimeToMinutes(value: string) {
+/**
+ * "00:00" means different things depending on role: as an OPEN time it's the
+ * start of the day (0 minutes); as a CLOSE time it means midnight at the END
+ * of the day (1440 minutes). Without this distinction, any business open
+ * until midnight (very common for gyms/restaurants) would show zero slots.
+ */
+function parseTimeToMinutes(value: string, role: "open" | "close") {
   const [hours, minutes] = value.split(":").map(Number);
-  return hours * 60 + minutes;
+  const total = hours * 60 + minutes;
+  if (role === "close" && total === 0) return MINUTES_PER_DAY;
+  return total;
 }
 
-/** Generates 30-min slot start times (as "HH:mm") that leave enough room for `durationMinutes`. */
 export function generateTimeSlots(
   workingHours: WorkingHoursDay[],
   date: Date,
   durationMinutes: number,
+  timezone: string,
   stepMinutes = 30,
 ): string[] {
-  const dayKey = DAY_KEYS[date.getDay()];
+  const { day: dayKey } = getScheduleParts(date, timezone);
   const entry = workingHours.find((day) => day.day === dayKey);
-  if (!entry?.isOpen) return [];
+  if (!entry?.isOpen || !entry.openTime || !entry.closeTime) return [];
 
-  const openMinutes = parseTimeToMinutes(entry.openTime);
-  const closeMinutes = parseTimeToMinutes(entry.closeTime);
+  const openMinutes = parseTimeToMinutes(entry.openTime, "open");
+  const closeMinutes = parseTimeToMinutes(entry.closeTime, "close");
   const slots: string[] = [];
 
   for (
@@ -35,18 +37,19 @@ export function generateTimeSlots(
     minutes + durationMinutes <= closeMinutes;
     minutes += stepMinutes
   ) {
-    const hh = String(Math.floor(minutes / 60)).padStart(2, "0");
+    const hh = String(Math.floor(minutes / 60) % 24).padStart(2, "0");
     const mm = String(minutes % 60).padStart(2, "0");
     slots.push(`${hh}:${mm}`);
   }
 
-  // Filter out past slots if the selected date is today.
   const now = new Date();
-  const isToday = date.toDateString() === now.toDateString();
-  if (!isToday) return slots;
+  const isSelectedDateToday =
+    getDateKeyInTimezone(date, timezone) ===
+    getDateKeyInTimezone(now, timezone);
+  if (!isSelectedDateToday) return slots;
 
-  const nowMinutes = now.getHours() * 60 + now.getMinutes();
-  return slots.filter((slot) => parseTimeToMinutes(slot) > nowMinutes);
+  const { minutes: nowMinutes } = getScheduleParts(now, timezone);
+  return slots.filter((slot) => parseTimeToMinutes(slot, "open") > nowMinutes);
 }
 
 export function combineDateAndTime(date: Date, time: string) {

@@ -67,7 +67,10 @@ export function OverviewContent() {
       {
         accessorKey: "amount",
         header: "Amount",
-        cell: ({ row }) => `Rs ${row.original.amount.toLocaleString()}`,
+        cell: ({ row }) => {
+          const amount = row.original.amount;
+          return amount != null ? `Rs ${amount.toLocaleString()}` : "—";
+        },
       },
     ],
     [],

@@ -159,6 +159,7 @@ export function BookingFormDialog({
               onTimeChange={setTime}
               workingHours={profile.workingHours}
               durationMinutes={serviceMeta.duration}
+              timezone={profile.timezone}
             />
           )}
 

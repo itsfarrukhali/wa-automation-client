@@ -47,6 +47,7 @@ export function useDailySchedule(date: string) {
     queryKey: [KEY, "schedule", date],
     queryFn: () => getDailySchedule(date, token as string),
     enabled: Boolean(token) && Boolean(date),
+    retry: 1,
   });
 }
 

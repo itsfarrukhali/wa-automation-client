@@ -12,6 +12,7 @@ import {
 import { generateTimeSlots } from "@/lib/time-slots";
 import type { WorkingHoursDay } from "@/lib/business-profile";
 import { cn } from "@/lib/utils";
+import { getScheduleParts } from "@/lib/timezone";
 
 export function DateTimePicker({
   date,
@@ -20,6 +21,7 @@ export function DateTimePicker({
   onTimeChange,
   workingHours,
   durationMinutes,
+  timezone,
 }: {
   date: Date | undefined;
   time: string | null;
@@ -27,11 +29,15 @@ export function DateTimePicker({
   onTimeChange: (time: string) => void;
   workingHours: WorkingHoursDay[];
   durationMinutes: number;
+  timezone: string;
 }) {
   const slots = date
-    ? generateTimeSlots(workingHours, date, durationMinutes)
+    ? generateTimeSlots(workingHours, date, durationMinutes, timezone)
     : [];
-
+  const dayIsClosed = date
+    ? !workingHours.find((d) => d.day === getScheduleParts(date, timezone).day)
+        ?.isOpen
+    : false;
   return (
     <div className="grid gap-3 sm:grid-cols-2">
       <div className="space-y-1.5">
@@ -85,9 +91,11 @@ export function DateTimePicker({
           >
             {slots.length === 0 ? (
               <p className="p-2 text-sm text-muted-foreground">
-                {date
-                  ? "No slots available — business is closed or fully booked."
-                  : ""}
+                {!date
+                  ? ""
+                  : dayIsClosed
+                    ? "Closed on this day. Pick another date."
+                    : "No remaining slots today — pick another date or a longer window."}
               </p>
             ) : (
               <div className="grid grid-cols-2 gap-1.5">

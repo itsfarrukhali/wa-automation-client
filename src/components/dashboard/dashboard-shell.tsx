@@ -7,6 +7,7 @@ import {
   Bell,
   CalendarDays,
   CreditCard,
+  FileText,
   Inbox,
   LayoutDashboard,
   LogOut,
@@ -27,6 +28,7 @@ const navItems = [
   { label: "Services", href: "/dashboard/services", icon: Scissors },
   { label: "Bookings", href: "/dashboard/bookings", icon: CalendarDays },
   { label: "Customers", href: "/dashboard/customers", icon: Users },
+  { label: "Templates", href: "/dashboard/templates", icon: FileText },
   { label: "Campaigns", href: "/dashboard/campaigns", icon: Megaphone },
   { label: "Billing", href: "/dashboard/billing", icon: CreditCard },
 ];

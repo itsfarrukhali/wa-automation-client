@@ -22,15 +22,26 @@ export async function apiRequest<T>(
   path: string,
   { token, headers, ...options }: ApiOptions = {},
 ): Promise<T> {
-  const response = await fetch(`${API_BASE_URL}${path}`, {
-    ...options,
-    headers: {
-      "Content-Type": "application/json",
-      ...(token ? { Authorization: `Bearer ${token}` } : {}),
-      ...headers,
-    },
-    credentials: "include",
-  });
+  let response: Response;
+  try {
+    response = await fetch(`${API_BASE_URL}${path}`, {
+      ...options,
+      headers: {
+        "Content-Type": "application/json",
+        ...(token ? { Authorization: `Bearer ${token}` } : {}),
+        ...headers,
+      },
+      credentials: "include",
+    });
+  } catch {
+    // fetch() throws a raw TypeError for CORS-blocked/network failures —
+    // no status code, no body. Normalize it so callers get a real message
+    // instead of silently getting undefined data.
+    throw new ApiError(
+      "Couldn't reach the server. Check your connection or API configuration.",
+      0,
+    );
+  }
 
   const text = await response.text();
   const payload = text ? JSON.parse(text) : null;

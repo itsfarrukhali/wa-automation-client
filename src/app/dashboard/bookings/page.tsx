@@ -46,8 +46,11 @@ export default function BookingsPage() {
   const [viewingId, setViewingId] = useState<string | null>(null);
 
   const dateKey = format(selectedDate, "yyyy-MM-dd");
-  const { data: schedule = [], isLoading: scheduleLoading } =
-    useDailySchedule(dateKey);
+  const {
+    data: schedule = [],
+    isLoading: scheduleLoading,
+    error: scheduleError,
+  } = useDailySchedule(dateKey);
 
   const listParams: BookingListParams = useMemo(
     () => ({
@@ -103,15 +106,16 @@ export default function BookingsPage() {
                     {schedule.length} bookings
                   </span>
                 </div>
-
-                {scheduleLoading ? (
+                {scheduleError ? (
+                  <p className="rounded-md border border-destructive/30 bg-destructive/10 px-3 py-2 text-sm text-destructive">
+                    {scheduleError instanceof Error
+                      ? scheduleError.message
+                      : "Couldn't load today's schedule."}
+                  </p>
+                ) : scheduleLoading ? (
                   <div className="grid h-32 place-items-center">
                     <Loader2 className="size-5 animate-spin text-muted-foreground" />
                   </div>
-                ) : schedule.length === 0 ? (
-                  <p className="py-8 text-center text-sm text-muted-foreground">
-                    No bookings scheduled for this day.
-                  </p>
                 ) : (
                   <div className="space-y-2">
                     {schedule

@@ -62,6 +62,7 @@ export function RescheduleDialog({
             onTimeChange={setTime}
             workingHours={profile.workingHours}
             durationMinutes={booking.serviceId.duration}
+            timezone={profile.timezone}
           />
         )}
         {formError && (
