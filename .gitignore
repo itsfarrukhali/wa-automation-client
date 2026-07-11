@@ -3,3 +3,4 @@ node_modules/
 tsconfig.tsbuildinfo
 dev-server*.log
 .env*.local
+.env
