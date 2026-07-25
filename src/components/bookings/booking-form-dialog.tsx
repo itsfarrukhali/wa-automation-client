@@ -14,7 +14,7 @@ import { Field } from "@/components/onboarding/field";
 import { CustomerCombobox } from "@/components/bookings/customer-combobox";
 import { ServiceSelect } from "@/components/bookings/service-select";
 import { DateTimePicker } from "@/components/bookings/date-time-picker";
-import { useActiveStaffOptions } from "@/hooks/use-services";
+import { useActiveStaffOptions } from "@/hooks/use-staff";
 import { useBusinessProfile, useCreateBooking } from "@/hooks/use-bookings";
 import { combineDateAndTime } from "@/lib/time-slots";
 import { ApiError } from "@/lib/api";

@@ -4,6 +4,7 @@
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import {
+  BarChart3,
   Bell,
   CalendarDays,
   CreditCard,
@@ -15,6 +16,7 @@ import {
   Scissors,
   Search,
   Settings,
+  UserCog,
   Users,
 } from "lucide-react";
 import { useAuth } from "@/components/auth-provider";
@@ -22,16 +24,27 @@ import { Button } from "@/components/ui/button";
 import { logout as logoutRequest } from "@/lib/auth";
 import { cn } from "@/lib/utils";
 
-const navItems = [
-  { label: "Overview", href: "/dashboard", icon: LayoutDashboard },
-  { label: "Inbox", href: "/dashboard/inbox", icon: Inbox },
-  { label: "Services", href: "/dashboard/services", icon: Scissors },
-  { label: "Bookings", href: "/dashboard/bookings", icon: CalendarDays },
-  { label: "Customers", href: "/dashboard/customers", icon: Users },
-  { label: "Templates", href: "/dashboard/templates", icon: FileText },
-  { label: "Campaigns", href: "/dashboard/campaigns", icon: Megaphone },
-  { label: "Billing", href: "/dashboard/billing", icon: CreditCard },
-];
+function getNavItems(role: string | undefined) {
+  const base = [
+    { label: "Overview", href: "/dashboard", icon: LayoutDashboard },
+    { label: "Inbox", href: "/dashboard/inbox", icon: Inbox },
+    { label: "Services", href: "/dashboard/services", icon: Scissors },
+    { label: "Bookings", href: "/dashboard/bookings", icon: CalendarDays },
+    { label: "Customers", href: "/dashboard/customers", icon: Users },
+    { label: "Templates", href: "/dashboard/templates", icon: FileText },
+    { label: "Campaigns", href: "/dashboard/campaigns", icon: Megaphone },
+    { label: "Billing", href: "/dashboard/billing", icon: CreditCard },
+    { label: "Reports", href: "/dashboard/reports", icon: BarChart3 },
+  ];
+  if (role === "owner") {
+    base.splice(5, 0, {
+      label: "Staff",
+      href: "/dashboard/staff",
+      icon: UserCog,
+    });
+  }
+  return base;
+}
 
 export function DashboardShell({ children }: { children: React.ReactNode }) {
   const auth = useAuth();
@@ -62,7 +75,7 @@ export function DashboardShell({ children }: { children: React.ReactNode }) {
         <aside className="hidden w-64 shrink-0 border-r bg-white/75 px-4 py-5 backdrop-blur lg:block">
           <Brand />
           <nav className="mt-8 space-y-1">
-            {navItems.map((item) => (
+            {getNavItems(user.role).map((item) => (
               <Link
                 key={item.label}
                 href={item.href}
@@ -117,7 +130,7 @@ export function DashboardShell({ children }: { children: React.ReactNode }) {
               </div>
             </div>
             <div className="mt-3 flex gap-2 overflow-x-auto lg:hidden">
-              {navItems.map((item) => (
+              {getNavItems(user.role).map((item) => (
                 <Button
                   key={item.label}
                   asChild
