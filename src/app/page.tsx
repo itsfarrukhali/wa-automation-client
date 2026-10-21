@@ -207,6 +207,16 @@ export default function MarketingHome() {
           </Button>
         </div>
       </section>
+
+      <footer className="border-t bg-background">
+        <div className="mx-auto flex max-w-7xl flex-col gap-3 px-4 py-6 text-sm text-muted-foreground sm:flex-row sm:items-center sm:justify-between md:px-6">
+          <span>Zario</span>
+          <nav className="flex gap-5" aria-label="Legal">
+            <Link href="/privacy">Privacy Policy</Link>
+            <Link href="/data-deletion">Data Deletion</Link>
+          </nav>
+        </div>
+      </footer>
     </main>
   );
 }

@@ -44,7 +44,18 @@ export async function apiRequest<T>(
   }
 
   const text = await response.text();
-  const payload = text ? JSON.parse(text) : null;
+  let payload: { message?: string; error?: unknown } | null = null;
+
+  if (text) {
+    try {
+      payload = JSON.parse(text) as { message?: string; error?: unknown };
+    } catch {
+      throw new ApiError(
+        "The server returned an invalid response. Please try again.",
+        response.status,
+      );
+    }
+  }
 
   if (!response.ok) {
     const details = Array.isArray(payload?.error) ? payload.error : undefined;
@@ -56,23 +67,4 @@ export async function apiRequest<T>(
   }
 
   return payload as T;
-}
-
-export function unwrapList<T>(payload: unknown, fallback: T[]): T[] {
-  if (Array.isArray(payload)) return payload as T[];
-  if (payload && typeof payload === "object") {
-    const data = (payload as { data?: unknown }).data;
-    if (Array.isArray(data)) return data as T[];
-    if (data && typeof data === "object") {
-      const nested = data as Record<string, unknown>;
-      const list =
-        nested.items ??
-        nested.docs ??
-        nested.results ??
-        nested.customers ??
-        nested.bookings;
-      if (Array.isArray(list)) return list as T[];
-    }
-  }
-  return fallback;
 }

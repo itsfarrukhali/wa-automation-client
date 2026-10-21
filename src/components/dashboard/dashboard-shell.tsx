@@ -113,8 +113,15 @@ export function DashboardShell({ children }: { children: React.ReactNode }) {
                 >
                   <Bell className="size-4" />
                 </Button>
-                <Button variant="outline" size="icon" aria-label="Settings">
-                  <Settings className="size-4" />
+                <Button
+                  asChild
+                  variant="outline"
+                  size="icon"
+                  aria-label="Settings"
+                >
+                  <Link href="/dashboard/settings">
+                    <Settings className="size-4" />
+                  </Link>
                 </Button>
                 <Button
                   variant="outline"
