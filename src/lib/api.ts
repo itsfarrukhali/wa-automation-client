@@ -68,3 +68,22 @@ export async function apiRequest<T>(
 
   return payload as T;
 }
+
+export function unwrapList<T>(payload: unknown, fallback: T[]): T[] {
+  if (Array.isArray(payload)) return payload as T[];
+  if (payload && typeof payload === "object") {
+    const data = (payload as { data?: unknown }).data;
+    if (Array.isArray(data)) return data as T[];
+    if (data && typeof data === "object") {
+      const nested = data as Record<string, unknown>;
+      const list =
+        nested.items ??
+        nested.docs ??
+        nested.results ??
+        nested.customers ??
+        nested.bookings;
+      if (Array.isArray(list)) return list as T[];
+    }
+  }
+  return fallback;
+}
