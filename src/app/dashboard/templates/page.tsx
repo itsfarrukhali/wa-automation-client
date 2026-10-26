@@ -21,13 +21,18 @@ export default function TemplatesPage() {
   const { data, isLoading } = useTemplateList();
   const syncTemplates = useSyncTemplates();
   const [syncError, setSyncError] = useState("");
+  const [syncSummary, setSyncSummary] = useState("");
 
   const templates = data?.templates ?? [];
 
   async function handleSync() {
     setSyncError("");
+    setSyncSummary("");
     try {
-      await syncTemplates.mutateAsync();
+      const result = await syncTemplates.mutateAsync();
+      setSyncSummary(
+        `Synced ${result.synced} from Meta: ${result.created} added, ${result.updated} updated, ${result.removed} removed.`,
+      );
     } catch (err) {
       setSyncError(err instanceof ApiError ? err.message : "Sync failed");
     }
@@ -42,6 +47,17 @@ export default function TemplatesPage() {
             {data ? `${data.total} templates` : "Loading..."} · Managed in Meta,
             mirrored here.
           </p>
+          {data?.source && (
+            <p className="text-xs text-muted-foreground">
+              Source: {data.source.verifiedName || "WhatsApp account"}
+              {data.source.displayPhoneNumber
+                ? ` · ${data.source.displayPhoneNumber}`
+                : ""}
+              {data.source.wabaIdSuffix
+                ? ` · WABA …${data.source.wabaIdSuffix}`
+                : ""}
+            </p>
+          )}
         </div>
         <Button onClick={handleSync} disabled={syncTemplates.isPending}>
           <RefreshCw
@@ -56,6 +72,12 @@ export default function TemplatesPage() {
       {syncError && (
         <div className="rounded-md border border-destructive/30 bg-destructive/10 px-3 py-2 text-sm text-destructive">
           {syncError}
+        </div>
+      )}
+
+      {syncSummary && (
+        <div className="rounded-md border border-emerald-300 bg-emerald-50 px-3 py-2 text-sm text-emerald-800">
+          {syncSummary}
         </div>
       )}
 

@@ -22,11 +22,21 @@ export type Template = {
   lastUsed?: string;
 };
 
+export type TemplateSource = {
+  wabaIdSuffix: string | null;
+  displayPhoneNumber: string | null;
+  verifiedName: string | null;
+};
+
 type ApiEnvelope<T> = { success: boolean; message: string; data: T };
 
 export async function listTemplates(token: string) {
   const res = await apiRequest<
-    ApiEnvelope<{ templates: Template[]; total: number }>
+    ApiEnvelope<{
+      templates: Template[];
+      total: number;
+      source: TemplateSource;
+    }>
   >("/whatsapp/templates", { token });
   return res.data;
 }
@@ -37,6 +47,8 @@ export async function syncTemplatesFromMeta(token: string) {
       synced: number;
       created: number;
       updated: number;
+      removed: number;
+      source: TemplateSource;
       templates: Template[];
     }>
   >("/whatsapp/templates/sync", { method: "POST", token });
