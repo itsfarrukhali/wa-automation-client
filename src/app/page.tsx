@@ -1,6 +1,5 @@
 import Link from "next/link";
 import {
-  ArrowRight,
   BarChart3,
   CalendarCheck,
   Check,
@@ -12,6 +11,10 @@ import {
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  HomeHeaderActions,
+  HomeHeroActions,
+} from "@/components/home-auth-actions";
 
 const features = [
   {
@@ -85,14 +88,7 @@ export default function MarketingHome() {
             <a href="#about">About</a>
             <a href="#contact">Contact</a>
           </nav>
-          <div className="flex items-center gap-2">
-            <Button variant="ghost" asChild>
-              <Link href="/login">Login</Link>
-            </Button>
-            <Button asChild>
-              <Link href="/signup">Start</Link>
-            </Button>
-          </div>
+          <HomeHeaderActions />
         </div>
       </header>
 
@@ -106,16 +102,8 @@ export default function MarketingHome() {
             <p className="mt-5 max-w-xl text-base leading-7 text-muted-foreground">
               Zario helps salons, clinics, consultants, and appointment-led teams manage WhatsApp work without messy spreadsheets or missed follow-ups.
             </p>
-            <div className="mt-7 flex flex-col gap-3 sm:flex-row">
-              <Button size="default" asChild>
-                <Link href="/signup">
-                  Create account
-                  <ArrowRight className="size-4" />
-                </Link>
-              </Button>
-              <Button variant="outline" asChild>
-                <Link href="/dashboard">View dashboard</Link>
-              </Button>
+            <div className="mt-7 flex min-h-9 flex-col gap-3 sm:flex-row">
+              <HomeHeroActions />
             </div>
           </div>
 

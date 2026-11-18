@@ -8,6 +8,7 @@ import { Input } from "@/components/ui/input";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import {
   useConversationThread,
+  useMessageEvents,
   useSendTemplateMessage,
   useSendTextMessage,
 } from "@/hooks/use-messages";
@@ -16,6 +17,7 @@ import { ApiError } from "@/lib/api";
 import { cn } from "@/lib/utils";
 
 export function MessageThread({ customerId }: { customerId: string | null }) {
+  useMessageEvents();
   const { data, isLoading } = useConversationThread(customerId);
   const sendMessage = useSendTextMessage();
   const sendTemplate = useSendTemplateMessage();
