@@ -43,15 +43,25 @@ export type Message = {
   status: MessageStatus;
   type: MessageType;
   waCustomerPhone?: string;
-  customerId?: {
-    _id: string;
-    name: string;
-    phone: string;
-    whatsappNumber?: string;
-  };
+  customerId?:
+    | string
+    | {
+        _id: string;
+        name: string;
+        phone: string;
+        whatsappNumber?: string;
+        optedOut?: boolean;
+        whatsappOptIn?: boolean;
+      };
   staffId?: { _id: string; name: string };
   sentAt: string;
   createdAt: string;
+};
+
+export type ConversationThread = {
+  customerId: string;
+  messages: Message[];
+  nextBefore: string | null;
 };
 
 export type Conversation = {
@@ -99,11 +109,7 @@ export async function getConversationThread(
     if (value !== undefined && value !== "") query.set(key, String(value));
   });
   const res = await apiRequest<
-    ApiEnvelope<{
-      customerId: string;
-      messages: Message[];
-      nextBefore: string | null;
-    }>
+    ApiEnvelope<ConversationThread>
   >(`/messages/conversations/${customerId}?${query.toString()}`, { token });
   return res.data;
 }
@@ -114,6 +120,27 @@ export async function sendTextMessage(
 ) {
   const res = await apiRequest<ApiEnvelope<{ message: Message }>>(
     "/messages/text",
+    {
+      method: "POST",
+      body: JSON.stringify(body),
+      token,
+    },
+  );
+  return res.data.message;
+}
+
+export async function sendTemplateMessage(
+  body: {
+    customerId: string;
+    templateName: string;
+    language?: string;
+    components?: unknown[];
+    type?: MessageType;
+  },
+  token: string,
+) {
+  const res = await apiRequest<ApiEnvelope<{ message: Message }>>(
+    "/messages/template",
     {
       method: "POST",
       body: JSON.stringify(body),
