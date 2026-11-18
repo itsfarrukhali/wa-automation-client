@@ -21,6 +21,25 @@ export type BusinessProfile = {
   };
 };
 
+export type WhatsAppConnectionStatus = {
+  health:
+    | "healthy"
+    | "invalid"
+    | "degraded"
+    | "unreachable"
+    | "not_configured";
+  connectionStatus: string;
+  tokenValid: boolean | null;
+  credentialsStored: boolean;
+  displayPhoneNumber: string | null;
+  verifiedName: string | null;
+  qualityRating: string;
+  wabaIdSuffix: string | null;
+  lastConnectedAt: string | null;
+  tokenExpiresAt: string | null;
+  error?: string;
+};
+
 type ApiEnvelope<T> = { success: boolean; message: string; data: T };
 
 export async function getMyBusinessProfile(token: string) {
@@ -40,4 +59,12 @@ export async function reconnectWhatsApp(
     { method: "PATCH", body: JSON.stringify(body), token },
   );
   return res.data.business;
+}
+
+export async function getWhatsAppConnectionStatus(token: string) {
+  const res = await apiRequest<ApiEnvelope<WhatsAppConnectionStatus>>(
+    "/business/whatsapp/status",
+    { token },
+  );
+  return res.data;
 }
