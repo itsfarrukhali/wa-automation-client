@@ -46,7 +46,7 @@ export default function DataDeletionPage() {
         <p>
           Depending on the request, deletion can cover the Zario account,
           business profile, staff records, customer records, bookings, messages,
-          automation settings, and stored WhatsApp connection credentials. Data
+          automation settings, and stored WhatsApp connection details. Data
           held independently by Meta, WhatsApp, a merchant, or another provider
           is governed by that party&apos;s retention process and may require a separate
           request.
@@ -57,8 +57,10 @@ export default function DataDeletionPage() {
         <h2>Disconnect Meta or WhatsApp</h2>
         <p>
           You may also remove Zario&apos;s access from your Meta Business settings.
-          Removing access stops future API access but does not automatically
-          replace a deletion request for information already stored in Zario.
+          Removing access stops Zario from connecting to your WhatsApp account in
+          the future, but it does not delete information already stored in Zario.
+          Send a deletion request as described above if you also want that
+          information removed.
         </p>
       </section>
 

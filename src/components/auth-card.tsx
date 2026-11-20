@@ -77,22 +77,22 @@ export function AuthCard({ mode }: { mode: "login" | "signup" }) {
         <div className="grid overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-[0_24px_70px_rgba(15,23,42,0.1)] lg:grid-cols-[0.85fr_1.15fr]">
           <aside className="hidden bg-slate-950 p-10 text-white lg:flex lg:flex-col lg:justify-between">
             <div>
-              <p className="text-sm font-semibold uppercase tracking-[0.18em] text-emerald-300">Secure workspace access</p>
+              <p className="text-sm font-semibold uppercase tracking-[0.18em] text-emerald-300">Your business stays private</p>
               <h1 className="mt-5 text-3xl font-semibold leading-tight tracking-tight">
-                Your public session hint never grants access to business data.
+                Secure access without the technical jargon.
               </h1>
               <p className="mt-5 text-base leading-7 text-slate-400">
-                Zario re-verifies identity against the backend and restores
-                sessions through a secure, httpOnly refresh cookie.
+                Zario checks your identity and permissions before showing
+                protected business information.
               </p>
               <div className="mt-8 space-y-4">
-                <AuthTrustPoint>Access tokens remain in application memory</AuthTrustPoint>
-                <AuthTrustPoint>Backend role and business checks stay authoritative</AuthTrustPoint>
-                <AuthTrustPoint>Repeated failed logins trigger account locking</AuthTrustPoint>
+                <AuthTrustPoint>Private account and business access</AuthTrustPoint>
+                <AuthTrustPoint>Separate permissions for owners and staff</AuthTrustPoint>
+                <AuthTrustPoint>Temporary protection after repeated failed logins</AuthTrustPoint>
               </div>
             </div>
             <p className="mt-10 flex items-center gap-2 text-xs text-slate-500">
-              <ShieldCheck className="size-4 text-emerald-400" /> Never send a password or access token to support.
+              <ShieldCheck className="size-4 text-emerald-400" /> Zario support will never ask for your password.
             </p>
           </aside>
           <Card className="rounded-none border-0 shadow-none">
@@ -210,8 +210,8 @@ export function AuthCard({ mode }: { mode: "login" | "signup" }) {
                       type="checkbox"
                     />
                     <span className="text-muted-foreground">
-                      I agree that Zario can process account and business data
-                      for operating this service.
+                      I agree to the <Link className="font-medium text-primary hover:underline" href="/terms">Terms of Service</Link>{" "}
+                      and acknowledge the <Link className="font-medium text-primary hover:underline" href="/privacy">Privacy Policy</Link>.
                     </span>
                   </label>
                 </>

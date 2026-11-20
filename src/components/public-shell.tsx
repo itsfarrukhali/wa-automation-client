@@ -100,9 +100,9 @@ export function TrustNotice() {
     <div className="flex items-start gap-3 rounded-xl border border-emerald-200 bg-emerald-50 p-4 text-sm text-emerald-950">
       <ShieldCheck className="mt-0.5 size-5 shrink-0 text-emerald-700" />
       <p>
-        Zario never asks you to paste WhatsApp credentials into chat or email.
-        Connection credentials are submitted only inside the authenticated
-        dashboard and stored encrypted.
+        Zario will never ask you to send private WhatsApp connection details by
+        chat or email. Add them only inside your signed-in dashboard, where they
+        are stored securely.
       </p>
     </div>
   );

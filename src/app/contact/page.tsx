@@ -17,7 +17,7 @@ export default function ContactPage() {
         <div>
           <p className="text-sm font-semibold uppercase tracking-[0.18em] text-primary">Contact Zario</p>
           <h1 className="mt-4 text-4xl font-semibold tracking-tight text-slate-950 md:text-5xl">Use the right channel for the issue.</h1>
-          <p className="mt-5 text-lg leading-8 text-slate-600">Describe the business impact, affected page, and approximate time. Never send passwords or connection secrets.</p>
+          <p className="mt-5 text-lg leading-8 text-slate-600">Tell us what happened, which page you were using, and roughly when it occurred. Never send passwords or private WhatsApp connection details.</p>
           <div className="mt-8"><TrustNotice /></div>
         </div>
         <div className="grid gap-4 sm:grid-cols-2">

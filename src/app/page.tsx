@@ -25,7 +25,7 @@ const features = [
   { title: "Customer records that stay useful", text: "Maintain contact details, tags, consent, interaction history, and booking context.", icon: Users },
   { title: "Controlled campaigns", text: "Target practical customer segments and use approved WhatsApp templates with opt-out safeguards.", icon: Workflow },
   { title: "Operational reporting", text: "Review booking activity, revenue signals, message performance, and workload trends.", icon: BarChart3 },
-  { title: "Accountable team access", text: "Separate owner and staff access so daily work does not require sharing credentials.", icon: UserCheck },
+  { title: "Accountable team access", text: "Separate owner and staff access so daily work does not require sharing passwords.", icon: UserCheck },
 ];
 
 const plans = [
@@ -36,7 +36,7 @@ const plans = [
 
 const faqs = [
   { question: "Does Zario replace WhatsApp?", answer: "No. Zario connects to the official WhatsApp Business platform and provides an operational workspace around conversations, templates, bookings, and customer records." },
-  { question: "Do you ask for credentials over email or chat?", answer: "No. Connection credentials should only be entered inside the authenticated Zario dashboard. Sensitive WhatsApp credentials are stored encrypted." },
+  { question: "Will support ask for private account details?", answer: "No. Passwords and private WhatsApp connection details should only be entered inside your signed-in Zario dashboard. We will not ask you to send them by email or chat." },
   { question: "Can staff share the owner login?", answer: "They should not. Zario provides staff access so each authorized person can use their own account and permissions." },
   { question: "How are opt-outs handled?", answer: "Customer consent state is recorded, outbound messaging is blocked after an opt-out, and the customer can opt back in through the supported WhatsApp flow." },
 ];
@@ -75,8 +75,8 @@ export default function MarketingHome() {
 
       <section className="border-b border-slate-200 bg-slate-950 text-white">
         <div className="mx-auto grid max-w-7xl gap-6 px-4 py-7 sm:grid-cols-2 md:px-6 lg:grid-cols-4">
-          <TrustItem icon={LockKeyhole} title="Encrypted credentials" text="Sensitive connection values are encrypted at rest." />
-          <TrustItem icon={ShieldCheck} title="Server-enforced access" text="Protected APIs verify identity and role on every request." />
+          <TrustItem icon={LockKeyhole} title="Protected connection details" text="Sensitive WhatsApp setup information is encrypted when stored." />
+          <TrustItem icon={ShieldCheck} title="Protected account access" text="Zario checks identity and permissions before showing private information." />
           <TrustItem icon={UserCheck} title="Consent controls" text="Opt-out state blocks unauthorized outbound messages." />
           <TrustItem icon={Clock3} title="Monitored production" text="Health checks, smoke tests, and error monitoring stay active." />
         </div>
@@ -85,7 +85,7 @@ export default function MarketingHome() {
       <section id="how-it-works" className="mx-auto max-w-7xl px-4 py-20 md:px-6">
         <SectionTitle eyebrow="How it works" title="A clear path from connection to daily work." text="No hidden setup story. Your business connects the required services, configures its operational rules, and gives staff only the access they need." />
         <div className="mt-12 grid gap-5 lg:grid-cols-3">
-          <ProcessCard icon={KeyRound} label="Connect securely" text="Add WhatsApp Business credentials inside the authenticated settings area, then verify the connection before use." />
+          <ProcessCard icon={KeyRound} label="Connect securely" text="Add your WhatsApp Business connection details inside your signed-in settings, then verify the connection before use." />
           <ProcessCard icon={Workflow} label="Configure operations" text="Set services, staff, business hours, templates, customer consent, and booking rules for your workflow." />
           <ProcessCard icon={MessageCircle} label="Work from one queue" text="Handle conversations, booking activity, reminders, and follow-ups with customer context visible." />
         </div>
@@ -108,7 +108,7 @@ export default function MarketingHome() {
 
       <section className="mx-auto grid max-w-7xl gap-10 px-4 py-20 md:px-6 lg:grid-cols-[0.85fr_1.15fr] lg:items-center">
         <div>
-          <SectionTitle eyebrow="Trust by design" title="Security claims should be specific and verifiable." text="Zario separates public navigation hints from actual authorization. Backend APIs remain the authority for identity, role, email verification, and business ownership." />
+          <SectionTitle eyebrow="Trust by design" title="Practical protection for your business data." text="Zario checks who is signed in, what they are allowed to do, and which business they belong to before granting access to protected information." />
           <div className="mt-7"><TrustNotice /></div>
           <div className="mt-6 flex flex-wrap gap-3">
             <Button asChild variant="outline"><Link href="/security">Review security approach</Link></Button>
@@ -116,10 +116,10 @@ export default function MarketingHome() {
           </div>
         </div>
         <div className="grid gap-4 sm:grid-cols-2">
-          <SecurityCard title="Memory-only access tokens" text="Bearer access tokens are not persisted in JavaScript-readable browser storage." />
-          <SecurityCard title="Secure session restoration" text="Reloaded sessions are restored through a secure, httpOnly refresh cookie." />
-          <SecurityCard title="Credential encryption" text="Sensitive WhatsApp credentials are encrypted before database storage." />
-          <SecurityCard title="Operational monitoring" text="Production health, dependency readiness, smoke tests, and application errors are monitored." />
+          <SecurityCard title="Protected sign-in" text="Account checks continue in the background while you use the service." />
+          <SecurityCard title="Owner and staff permissions" text="Team members only receive the access assigned to their role." />
+          <SecurityCard title="Protected WhatsApp details" text="Sensitive WhatsApp connection information is encrypted when stored." />
+          <SecurityCard title="Service monitoring" text="Zario is monitored for errors, outages, and important service problems." />
         </div>
       </section>
 
@@ -143,7 +143,7 @@ export default function MarketingHome() {
       </section>
 
       <section className="mx-auto grid max-w-7xl gap-10 px-4 py-20 md:px-6 lg:grid-cols-[0.7fr_1.3fr]">
-        <SectionTitle eyebrow="Questions" title="Straight answers before you connect anything." text="If your question involves account data or connection credentials, contact support without including secrets." />
+        <SectionTitle eyebrow="Questions" title="Straight answers before you connect anything." text="If your question involves private account or WhatsApp details, contact support without including those details in your message." />
         <div className="divide-y divide-slate-200 border-y border-slate-200">
           {faqs.map((faq) => <details key={faq.question} className="group py-5"><summary className="cursor-pointer list-none pr-6 text-base font-semibold text-slate-950 marker:hidden">{faq.question}</summary><p className="mt-3 max-w-2xl text-base leading-7 text-slate-600">{faq.answer}</p></details>)}
         </div>
@@ -154,7 +154,7 @@ export default function MarketingHome() {
           <div className="max-w-2xl">
             <p className="text-sm font-semibold uppercase tracking-[0.18em] text-emerald-300">Ready to evaluate Zario?</p>
             <h2 className="mt-3 text-3xl font-semibold tracking-tight">Create a workspace or ask a specific setup question.</h2>
-            <p className="mt-3 text-base leading-7 text-emerald-100/75">Never include passwords, access tokens, or private keys in an email.</p>
+            <p className="mt-3 text-base leading-7 text-emerald-100/75">Never include passwords or private WhatsApp connection details in an email.</p>
           </div>
           <div className="flex flex-col gap-3 sm:flex-row">
             <Button asChild className="bg-white text-emerald-950 hover:bg-emerald-50"><Link href="/signup">Create account</Link></Button>

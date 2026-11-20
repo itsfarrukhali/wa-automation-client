@@ -4,22 +4,126 @@ import { LegalPage } from "@/components/legal-page";
 
 export const metadata: Metadata = {
   title: "Terms of Service",
-  description: "Terms governing business use of the Zario service.",
+  description: "The rules for using Zario as a business customer.",
 };
 
 export default function TermsPage() {
   return (
     <LegalPage title="Terms of Service" updated="November 20, 2026">
-      <section><h2>1. Service and acceptance</h2><p>These terms govern use of Zario, a business operations and WhatsApp automation service operated by Farrukh Ali in Karachi, Pakistan. By creating an account or using the service, you agree to these terms on behalf of yourself and, where applicable, your business.</p></section>
-      <section><h2>2. Account responsibilities</h2><p>You must provide accurate information, protect account credentials, use individual staff accounts instead of sharing owner credentials, and promptly report suspected unauthorized access. You are responsible for activity performed through your authorized accounts.</p></section>
-      <section><h2>3. Messaging and consent</h2><p>You are responsible for obtaining and recording the consent or other legal basis required for customer communications. You must follow applicable law and Meta and WhatsApp policies, respect opt-outs, and avoid spam, deception, harassment, prohibited goods, or unlawful content.</p></section>
-      <section><h2>4. Third-party services</h2><p>Zario depends on services including Meta WhatsApp, hosting, databases, email, and monitoring providers. Their availability, policies, pricing, and independent data practices may affect the service. Zario does not control those third-party systems.</p></section>
-      <section><h2>5. Fees and plans</h2><p>Plan scope and fees are disclosed before purchase. Meta messaging charges, taxes, and third-party fees may apply separately unless explicitly included. We may change future pricing with reasonable notice; changes do not retroactively alter a paid period.</p></section>
-      <section><h2>6. Availability and acceptable use</h2><p>We work to keep the service available but do not guarantee uninterrupted operation. You must not probe or bypass security, access another business&apos;s data, overload the service, upload malicious code, reverse engineer protected components, or use Zario for unlawful activity.</p></section>
-      <section><h2>7. Data and privacy</h2><p>Our handling of personal information is described in the <Link href="/privacy">Privacy Policy</Link>. Account owners control the business and customer records they submit and are responsible for responding to their customers&apos; lawful data requests.</p></section>
-      <section><h2>8. Suspension and termination</h2><p>We may restrict or suspend access when necessary to address security risk, non-payment, unlawful use, policy violations, or harm to users or infrastructure. You may request account deletion using our <Link href="/data-deletion">Data Deletion Instructions</Link>.</p></section>
-      <section><h2>9. Liability and changes</h2><p>To the extent permitted by applicable law, Zario is provided without warranties of uninterrupted or error-free operation and is not liable for indirect or consequential loss. We may update these terms and will revise the date above. Material changes will be communicated through reasonable service channels.</p></section>
-      <section><h2>10. Contact</h2><p>Questions about these terms can be sent to <a href="mailto:support@zario.app">support@zario.app</a>.</p></section>
+      <section>
+        <h2>1. Agreement</h2>
+        <p>
+          These terms apply when you create an account or use Zario. If you use
+          Zario for a business, you confirm that you are allowed to accept these
+          terms for that business. Zario is operated by Farrukh Ali in Karachi,
+          Pakistan.
+        </p>
+      </section>
+
+      <section>
+        <h2>2. Your account</h2>
+        <p>
+          You must provide accurate information, keep your password private, and
+          tell us promptly if you believe someone has accessed your account
+          without permission. Each team member should use their own staff account.
+          You are responsible for activity carried out by people you authorize.
+        </p>
+      </section>
+
+      <section>
+        <h2>3. Responsible messaging</h2>
+        <p>
+          You may only contact people when you have a lawful reason and any
+          required permission to do so. You must respect unsubscribe requests and
+          follow applicable laws and Meta and WhatsApp rules. You may not use
+          Zario for spam, scams, harassment, misleading messages, illegal goods,
+          or other unlawful activity.
+        </p>
+      </section>
+
+      <section>
+        <h2>4. Your content and customer data</h2>
+        <p>
+          You keep ownership of the business and customer information you add to
+          Zario. You give us permission to process that information only as needed
+          to provide, protect, and improve the service. You are responsible for
+          the accuracy of your records and for responding to your customers&apos;
+          valid privacy requests.
+        </p>
+      </section>
+
+      <section>
+        <h2>5. Plans, charges, and cancellation</h2>
+        <p>
+          The price and features of a plan are shown before purchase. Taxes, Meta
+          messaging charges, and other third-party fees may be separate unless we
+          clearly say they are included. You may cancel future renewal according
+          to the billing options available in your account. Amounts already paid
+          are not refundable unless required by law or stated otherwise at the
+          time of purchase.
+        </p>
+      </section>
+
+      <section>
+        <h2>6. Service availability</h2>
+        <p>
+          We work to keep Zario available and secure, but maintenance, internet
+          failures, third-party outages, or unexpected problems may interrupt the
+          service. We may change or discontinue a feature when necessary and will
+          give reasonable notice when a change materially affects normal use.
+        </p>
+      </section>
+
+      <section>
+        <h2>7. Things you must not do</h2>
+        <p>
+          You must not try to bypass security, access another business&apos;s data,
+          disrupt the service, upload harmful software, copy protected parts of
+          Zario, or use the service in a way that breaks the law or another
+          person&apos;s rights.
+        </p>
+      </section>
+
+      <section>
+        <h2>8. Other services</h2>
+        <p>
+          Zario relies on third-party services such as WhatsApp, Meta, hosting,
+          databases, email, monitoring, and payment providers. Their own terms,
+          policies, prices, and availability also apply. We are not responsible
+          for changes or outages in services we do not control.
+        </p>
+      </section>
+
+      <section>
+        <h2>9. Suspension and account closure</h2>
+        <p>
+          We may limit or suspend an account to protect users, investigate misuse,
+          address unpaid charges, or comply with legal requirements. You may stop
+          using Zario at any time and may request deletion through our{" "}
+          <Link href="/data-deletion">Data Deletion Instructions</Link>.
+        </p>
+      </section>
+
+      <section>
+        <h2>10. Our responsibility</h2>
+        <p>
+          To the extent allowed by law, Zario is provided without a promise that
+          it will always be available or error-free. We are not responsible for
+          indirect losses, lost profits, or losses caused by your misuse of the
+          service or by third-party services. Nothing in these terms removes any
+          rights that cannot legally be excluded.
+        </p>
+      </section>
+
+      <section>
+        <h2>11. Privacy, changes, and contact</h2>
+        <p>
+          Our <Link href="/privacy">Privacy Policy</Link> explains how we handle
+          personal information. We may update these terms and will show the latest
+          revision date above. For questions, email{" "}
+          <a href="mailto:support@zario.app">support@zario.app</a>.
+        </p>
+      </section>
     </LegalPage>
   );
 }
