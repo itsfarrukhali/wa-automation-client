@@ -1,8 +1,13 @@
 // src/hooks/use-messages.ts
 "use client";
 
-import { useEffect } from "react";
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { useEffect, useSyncExternalStore } from "react";
+import {
+  QueryClient,
+  useMutation,
+  useQuery,
+  useQueryClient,
+} from "@tanstack/react-query";
 import { useAuth } from "@/components/auth-provider";
 import { API_BASE_URL } from "@/lib/api";
 import {
@@ -17,16 +22,49 @@ import {
 
 const KEY = "messages";
 const FALLBACK_REFETCH_INTERVAL_MS = 60_000;
+type RealtimeStatus = "connecting" | "connected" | "disconnected";
+type MessageEvent = {
+  action?: string;
+  customerId?: string;
+  messageId?: string;
+  message?: Message;
+};
+
+let realtimeStatus: RealtimeStatus = "disconnected";
+const realtimeListeners = new Set<() => void>();
+
+const subscribeToRealtimeStatus = (listener: () => void) => {
+  realtimeListeners.add(listener);
+  return () => realtimeListeners.delete(listener);
+};
+
+const getRealtimeStatus = () => realtimeStatus;
+
+const setRealtimeStatus = (status: RealtimeStatus) => {
+  if (status === realtimeStatus) return;
+  realtimeStatus = status;
+  realtimeListeners.forEach((listener) => listener());
+};
+
+export function useMessageRealtimeStatus() {
+  return useSyncExternalStore(
+    subscribeToRealtimeStatus,
+    getRealtimeStatus,
+    getRealtimeStatus,
+  );
+}
 
 export function useInbox(
   params: { status?: "all" | "unread" | "needs_human"; search?: string } = {},
 ) {
   const { token } = useAuth();
+  const status = useMessageRealtimeStatus();
   return useQuery({
     queryKey: [KEY, "inbox", params],
     queryFn: () => getInbox({ limit: 50, ...params }, token as string),
     enabled: Boolean(token),
-    refetchInterval: FALLBACK_REFETCH_INTERVAL_MS,
+    refetchInterval:
+      status === "connected" ? false : FALLBACK_REFETCH_INTERVAL_MS,
     refetchIntervalInBackground: false,
     refetchOnWindowFocus: true,
   });
@@ -34,6 +72,7 @@ export function useInbox(
 
 export function useConversationThread(customerId: string | null) {
   const { token } = useAuth();
+  const status = useMessageRealtimeStatus();
   return useQuery({
     queryKey: [KEY, "thread", customerId],
     queryFn: () =>
@@ -43,7 +82,8 @@ export function useConversationThread(customerId: string | null) {
         token as string,
       ),
     enabled: Boolean(token) && Boolean(customerId),
-    refetchInterval: FALLBACK_REFETCH_INTERVAL_MS,
+    refetchInterval:
+      status === "connected" ? false : FALLBACK_REFETCH_INTERVAL_MS,
     refetchIntervalInBackground: false,
     refetchOnWindowFocus: true,
   });
@@ -60,18 +100,8 @@ export function useMessageEvents() {
     let retryTimer: ReturnType<typeof setTimeout> | undefined;
     let retryDelay = 1_000;
 
-    const refreshMessages = (customerId?: string) => {
-      queryClient.invalidateQueries({ queryKey: [KEY, "inbox"] });
-      if (customerId) {
-        queryClient.invalidateQueries({
-          queryKey: [KEY, "thread", customerId],
-        });
-      } else {
-        queryClient.invalidateQueries({ queryKey: [KEY, "thread"] });
-      }
-    };
-
     const connect = async () => {
+      setRealtimeStatus("connecting");
       try {
         const response = await fetch(`${API_BASE_URL}/messages/events`, {
           headers: { Authorization: `Bearer ${token}` },
@@ -84,7 +114,8 @@ export function useMessageEvents() {
         }
 
         retryDelay = 1_000;
-        refreshMessages();
+        setRealtimeStatus("connected");
+        queryClient.invalidateQueries({ queryKey: [KEY] });
         const reader = response.body.getReader();
         const decoder = new TextDecoder();
         let buffer = "";
@@ -97,15 +128,18 @@ export function useMessageEvents() {
           buffer = events.pop() || "";
 
           for (const block of events) {
+            const eventLine = block
+              .split("\n")
+              .find((line) => line.startsWith("event:"));
             const dataLine = block
               .split("\n")
-              .find((line) => line.startsWith("data: "));
-            if (!dataLine) continue;
+              .find((line) => line.startsWith("data:"));
+            if (!dataLine || eventLine?.slice(6).trim() !== "message.updated") {
+              continue;
+            }
             try {
-              const event = JSON.parse(dataLine.slice(6)) as {
-                customerId?: string;
-              };
-              refreshMessages(event.customerId);
+              const event = JSON.parse(dataLine.slice(5).trim()) as MessageEvent;
+              applyMessageEvent(queryClient, event);
             } catch {
               // Ignore malformed events and keep the stream alive.
             }
@@ -115,7 +149,9 @@ export function useMessageEvents() {
         if (!controller.signal.aborted) throw new Error("Message stream closed");
       } catch {
         if (controller.signal.aborted) return;
-        retryTimer = setTimeout(connect, retryDelay);
+        setRealtimeStatus("disconnected");
+        const jitter = Math.floor(Math.random() * Math.min(retryDelay, 1_000));
+        retryTimer = setTimeout(connect, retryDelay + jitter);
         retryDelay = Math.min(retryDelay * 2, 30_000);
       }
     };
@@ -124,6 +160,7 @@ export function useMessageEvents() {
     return () => {
       controller.abort();
       if (retryTimer) clearTimeout(retryTimer);
+      setRealtimeStatus("disconnected");
     };
   }, [queryClient, token]);
 }
@@ -150,10 +187,9 @@ export function useSendTextMessage() {
         context?.optimisticId,
         message,
       );
-      queryClient.invalidateQueries({
-        queryKey: [KEY, "thread", variables.customerId],
-      });
-      queryClient.invalidateQueries({ queryKey: [KEY, "inbox"] });
+      if (realtimeStatus !== "connected") {
+        queryClient.invalidateQueries({ queryKey: [KEY, "inbox"] });
+      }
     },
   });
 }
@@ -184,10 +220,9 @@ export function useSendTemplateMessage() {
         context?.optimisticId,
         message,
       );
-      queryClient.invalidateQueries({
-        queryKey: [KEY, "thread", variables.customerId],
-      });
-      queryClient.invalidateQueries({ queryKey: [KEY, "inbox"] });
+      if (realtimeStatus !== "connected") {
+        queryClient.invalidateQueries({ queryKey: [KEY, "inbox"] });
+      }
       queryClient.invalidateQueries({ queryKey: ["templates", "list"] });
     },
   });
@@ -241,16 +276,65 @@ function replaceOptimisticMessage(
 ) {
   queryClient.setQueryData<ConversationThread>(
     [KEY, "thread", customerId],
-    (current) =>
-      current
-        ? {
-            ...current,
-            messages: current.messages.map((item) =>
-              item._id === optimisticId ? message : item,
-            ),
-          }
-        : current,
+    (current) => {
+      if (!current) return current;
+      const withoutServerDuplicate = current.messages.filter(
+        (item) => item._id !== message._id,
+      );
+      return {
+        ...current,
+        messages: withoutServerDuplicate.map((item) =>
+          item._id === optimisticId ? message : item,
+        ),
+      };
+    },
   );
+}
+
+function applyMessageEvent(queryClient: QueryClient, event: MessageEvent) {
+  const { customerId, message, messageId } = event;
+
+  if (customerId && message?._id) {
+    queryClient.setQueryData<ConversationThread>(
+      [KEY, "thread", customerId],
+      (current) => {
+        if (!current) return current;
+        const existing = current.messages.find((item) => item._id === message._id);
+        const nextMessage = existing
+          ? {
+              ...existing,
+              ...message,
+              customerId:
+                typeof message.customerId === "string" &&
+                typeof existing.customerId === "object"
+                  ? existing.customerId
+                  : message.customerId,
+            }
+          : message;
+
+        return {
+          ...current,
+          messages: existing
+            ? current.messages.map((item) =>
+                item._id === message._id ? nextMessage : item,
+              )
+            : [nextMessage, ...current.messages],
+        };
+      },
+    );
+  } else if (customerId && messageId) {
+    queryClient.invalidateQueries({ queryKey: [KEY, "thread", customerId] });
+  }
+
+  if (
+    customerId &&
+    (event.action === "customer_opted_out" ||
+      event.action === "customer_opted_in")
+  ) {
+    queryClient.invalidateQueries({ queryKey: [KEY, "thread", customerId] });
+  }
+
+  queryClient.invalidateQueries({ queryKey: [KEY, "inbox"] });
 }
 
 export function useMarkMessageRead() {
