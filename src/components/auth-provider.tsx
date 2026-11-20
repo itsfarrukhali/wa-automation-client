@@ -14,8 +14,6 @@ import type { AuthPayload, AuthUser } from "@/lib/auth";
 import { fetchMe, logout as apiLogout, refreshAccessToken } from "@/lib/auth";
 import { clearSessionHint, setSessionHint } from "@/lib/session-cookie";
 
-const TOKEN_KEY = "zario.accessToken";
-
 type AuthContextValue = {
   token: string | null;
   user: AuthUser | null;
@@ -27,6 +25,7 @@ type AuthContextValue = {
 };
 
 const AuthContext = createContext<AuthContextValue | null>(null);
+const LEGACY_TOKEN_KEY = "zario.accessToken";
 
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [token, setToken] = useState<string | null>(null);
@@ -34,40 +33,40 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [isReady, setIsReady] = useState(false);
 
   const applySession = useCallback((newToken: string, newUser: AuthUser) => {
-    window.localStorage.setItem(TOKEN_KEY, newToken);
     setSessionHint(newUser.isEmailVerified);
     setToken(newToken);
     setUser(newUser);
   }, []);
 
   const wipeSession = useCallback(() => {
-    window.localStorage.removeItem(TOKEN_KEY);
     clearSessionHint();
     setToken(null);
     setUser(null);
   }, []);
 
-  // Bootstrap on first load: try stored token, fall back to silent refresh.
+  // Access tokens stay in memory. A secure httpOnly refresh cookie restores the
+  // session after reload, so JavaScript-readable browser storage never contains
+  // a bearer token.
   useEffect(() => {
     let cancelled = false;
 
     async function bootstrap() {
-      const stored = window.localStorage.getItem(TOKEN_KEY);
-
-      if (stored) {
-        try {
-          const me = await fetchMe(stored);
-          if (!cancelled) applySession(stored, me);
-          if (!cancelled) setIsReady(true);
-          return;
-        } catch {
-          // fall through to refresh
-        }
-      }
-
+      // Remove tokens persisted by older frontend releases.
+      window.localStorage.removeItem(LEGACY_TOKEN_KEY);
       try {
-        const newToken = await refreshAccessToken();
-        const me = await fetchMe(newToken);
+        const restoreSession = async () => {
+          const newToken = await refreshAccessToken();
+          const me = await fetchMe(newToken);
+          return { newToken, me };
+        };
+        // Refresh tokens rotate. Serialize restoration across tabs so two page
+        // loads cannot attempt to consume the same cookie at the same time.
+        const { newToken, me } = navigator.locks
+          ? await navigator.locks.request(
+              "zario-session-refresh",
+              restoreSession,
+            )
+          : await restoreSession();
         if (!cancelled) applySession(newToken, me);
       } catch {
         if (!cancelled) wipeSession();

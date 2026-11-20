@@ -3,9 +3,10 @@
 
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { ArrowRight, LockKeyhole, Mail, User } from "lucide-react";
+import { CheckCircle2, LockKeyhole, Mail, ShieldCheck, User } from "lucide-react";
 import { FormEvent, useState } from "react";
 import { useAuth } from "@/components/auth-provider";
+import { BrandMark } from "@/components/brand-mark";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -70,15 +71,31 @@ export function AuthCard({ mode }: { mode: "login" | "signup" }) {
   }
 
   return (
-    <main className="grid min-h-screen place-items-center bg-[linear-gradient(180deg,#faf8f1_0%,#ffffff_100%)] px-4 py-10">
-      <div className="w-full max-w-lg">
-        <Link href="/" className="mb-6 flex items-center gap-3">
-          <div className="grid size-9 place-items-center rounded-md bg-primary text-sm font-bold text-white">
-            Z
-          </div>
-          <span className="font-semibold">Zario</span>
-        </Link>
-        <Card>
+    <main className="min-h-screen bg-[radial-gradient(circle_at_15%_20%,rgba(20,138,117,0.12),transparent_28%),#f8fafc] px-4 py-8 md:px-6">
+      <div className="mx-auto w-full max-w-6xl">
+        <BrandMark className="mb-8" />
+        <div className="grid overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-[0_24px_70px_rgba(15,23,42,0.1)] lg:grid-cols-[0.85fr_1.15fr]">
+          <aside className="hidden bg-slate-950 p-10 text-white lg:flex lg:flex-col lg:justify-between">
+            <div>
+              <p className="text-sm font-semibold uppercase tracking-[0.18em] text-emerald-300">Secure workspace access</p>
+              <h1 className="mt-5 text-3xl font-semibold leading-tight tracking-tight">
+                Your public session hint never grants access to business data.
+              </h1>
+              <p className="mt-5 text-base leading-7 text-slate-400">
+                Zario re-verifies identity against the backend and restores
+                sessions through a secure, httpOnly refresh cookie.
+              </p>
+              <div className="mt-8 space-y-4">
+                <AuthTrustPoint>Access tokens remain in application memory</AuthTrustPoint>
+                <AuthTrustPoint>Backend role and business checks stay authoritative</AuthTrustPoint>
+                <AuthTrustPoint>Repeated failed logins trigger account locking</AuthTrustPoint>
+              </div>
+            </div>
+            <p className="mt-10 flex items-center gap-2 text-xs text-slate-500">
+              <ShieldCheck className="size-4 text-emerald-400" /> Never send a password or access token to support.
+            </p>
+          </aside>
+          <Card className="rounded-none border-0 shadow-none">
           <CardHeader>
             <CardTitle>
               {isSignup ? "Create your workspace" : "Welcome back"}
@@ -212,7 +229,6 @@ export function AuthCard({ mode }: { mode: "login" | "signup" }) {
                   : isSignup
                     ? "Create account"
                     : "Login"}
-                <ArrowRight className="size-4" />
               </Button>
             </form>
             <p className="mt-4 text-center text-sm text-muted-foreground">
@@ -225,8 +241,24 @@ export function AuthCard({ mode }: { mode: "login" | "signup" }) {
               </Link>
             </p>
           </CardContent>
-        </Card>
+          </Card>
+        </div>
+        <nav className="mt-6 flex flex-wrap justify-center gap-5 text-xs text-slate-500" aria-label="Trust and legal">
+          <Link href="/security" className="hover:text-primary">Security</Link>
+          <Link href="/privacy" className="hover:text-primary">Privacy</Link>
+          <Link href="/terms" className="hover:text-primary">Terms</Link>
+          <Link href="/contact" className="hover:text-primary">Contact</Link>
+        </nav>
       </div>
     </main>
+  );
+}
+
+function AuthTrustPoint({ children }: { children: React.ReactNode }) {
+  return (
+    <p className="flex items-start gap-3 text-sm leading-6 text-slate-300">
+      <CheckCircle2 className="mt-0.5 size-5 shrink-0 text-emerald-400" />
+      {children}
+    </p>
   );
 }

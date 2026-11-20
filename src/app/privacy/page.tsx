@@ -3,13 +3,13 @@ import Link from "next/link";
 import { LegalPage } from "@/components/legal-page";
 
 export const metadata: Metadata = {
-  title: "Privacy Policy | Zario",
+  title: "Privacy Policy",
   description: "How Zario collects, uses, stores, and protects personal data.",
 };
 
 export default function PrivacyPolicyPage() {
   return (
-    <LegalPage title="Privacy Policy" updated="October 21, 2026">
+    <LegalPage title="Privacy Policy" updated="November 20, 2026">
       <section>
         <h2>1. Who we are</h2>
         <p>

@@ -1,7 +1,6 @@
 "use client";
 
 import Link from "next/link";
-import { ArrowRight } from "lucide-react";
 import { useAuth } from "@/components/auth-provider";
 import { Button } from "@/components/ui/button";
 
@@ -26,7 +25,7 @@ export function HomeHeaderActions() {
         <Link href="/login">Login</Link>
       </Button>
       <Button asChild>
-        <Link href="/signup">Start</Link>
+        <Link href="/signup">Get started</Link>
       </Button>
     </div>
   );
@@ -42,10 +41,7 @@ export function HomeHeroActions() {
   if (token && user) {
     return (
       <Button asChild>
-        <Link href="/dashboard">
-          Open dashboard
-          <ArrowRight className="size-4" />
-        </Link>
+        <Link href="/dashboard">Open dashboard</Link>
       </Button>
     );
   }
@@ -53,10 +49,7 @@ export function HomeHeroActions() {
   return (
     <>
       <Button asChild>
-        <Link href="/signup">
-          Create account
-          <ArrowRight className="size-4" />
-        </Link>
+        <Link href="/signup">Create account</Link>
       </Button>
       <Button variant="outline" asChild>
         <Link href="/login">Login</Link>

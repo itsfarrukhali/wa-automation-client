@@ -3,13 +3,13 @@ import Link from "next/link";
 import { LegalPage } from "@/components/legal-page";
 
 export const metadata: Metadata = {
-  title: "Data Deletion Instructions | Zario",
+  title: "Data Deletion Instructions",
   description: "How to request deletion of data associated with a Zario account.",
 };
 
 export default function DataDeletionPage() {
   return (
-    <LegalPage title="Data Deletion Instructions" updated="October 21, 2026">
+    <LegalPage title="Data Deletion Instructions" updated="November 20, 2026">
       <section>
         <h2>Request deletion</h2>
         <p>
