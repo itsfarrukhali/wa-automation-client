@@ -26,7 +26,7 @@ export function RevenueChart({ daily }: { daily: RevenueReport["daily"] }) {
   }
 
   return (
-    <ChartContainer config={chartConfig} className="h-64 w-full">
+    <ChartContainer config={chartConfig} className="h-64 min-w-0 w-full">
       <AreaChart data={daily}>
         <CartesianGrid vertical={false} strokeDasharray="3 3" />
         <XAxis

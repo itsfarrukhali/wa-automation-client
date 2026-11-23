@@ -22,12 +22,15 @@ import {
 
 const KEY = "campaigns";
 
-export function useCampaignList(params: CampaignListParams) {
+export function useCampaignList(
+  params: CampaignListParams,
+  options: { enabled?: boolean } = {},
+) {
   const { token } = useAuth();
   return useQuery({
     queryKey: [KEY, "list", params],
     queryFn: () => listCampaigns(params, token as string),
-    enabled: Boolean(token),
+    enabled: Boolean(token) && (options.enabled ?? true),
     placeholderData: (previous) => previous,
   });
 }

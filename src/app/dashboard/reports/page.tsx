@@ -35,35 +35,37 @@ export default function ReportsPage() {
   const [range, setRange] = useState<DateRangeParams>({ days: 30 });
 
   return (
-    <div className="space-y-4">
+    <div className="min-w-0 space-y-4 overflow-x-hidden">
       <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
         <h1 className="text-2xl font-semibold">Reports</h1>
       </div>
 
-      <Tabs defaultValue="overview">
-        <TabsList>
-          <TabsTrigger value="overview">Overview</TabsTrigger>
-          <TabsTrigger value="revenue">Revenue</TabsTrigger>
-          <TabsTrigger value="bookings">Bookings</TabsTrigger>
-          <TabsTrigger value="customers">Customers</TabsTrigger>
-        </TabsList>
+      <Tabs defaultValue="overview" className="min-w-0">
+        <div className="max-w-full overflow-x-auto pb-1">
+          <TabsList className="w-max min-w-full justify-start sm:min-w-0">
+            <TabsTrigger value="overview">Overview</TabsTrigger>
+            <TabsTrigger value="revenue">Revenue</TabsTrigger>
+            <TabsTrigger value="bookings">Bookings</TabsTrigger>
+            <TabsTrigger value="customers">Customers</TabsTrigger>
+          </TabsList>
+        </div>
 
-        <TabsContent value="overview" className="mt-4 space-y-4">
+        <TabsContent value="overview" className="mt-4 min-w-0 space-y-4">
           <DateRangeSelector value={range} onChange={setRange} />
           <OverviewTab range={range} />
         </TabsContent>
 
-        <TabsContent value="revenue" className="mt-4 space-y-4">
+        <TabsContent value="revenue" className="mt-4 min-w-0 space-y-4">
           <DateRangeSelector value={range} onChange={setRange} />
           <RevenueTab range={range} />
         </TabsContent>
 
-        <TabsContent value="bookings" className="mt-4 space-y-4">
+        <TabsContent value="bookings" className="mt-4 min-w-0 space-y-4">
           <DateRangeSelector value={range} onChange={setRange} />
           <BookingsTab range={range} />
         </TabsContent>
 
-        <TabsContent value="customers" className="mt-4 space-y-4">
+        <TabsContent value="customers" className="mt-4 min-w-0 space-y-4">
           <p className="text-xs text-muted-foreground">
             Segment breakdown reflects your full customer base, not a date
             range.
@@ -80,8 +82,8 @@ function OverviewTab({ range }: { range: DateRangeParams }) {
   if (isLoading || !data) return <LoadingBlock />;
 
   return (
-    <div className="space-y-4">
-      <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+    <div className="min-w-0 space-y-4">
+      <div className="grid min-w-0 gap-3 sm:grid-cols-2 lg:grid-cols-4">
         <StatCard
           icon={CalendarIcon}
           label="Bookings"
@@ -108,8 +110,8 @@ function OverviewTab({ range }: { range: DateRangeParams }) {
         />
       </div>
 
-      <div className="grid gap-4 sm:grid-cols-2">
-        <Card>
+      <div className="grid min-w-0 gap-4 sm:grid-cols-2">
+        <Card className="min-w-0 overflow-hidden">
           <CardHeader>
             <CardTitle className="text-base">Bookings breakdown</CardTitle>
           </CardHeader>
@@ -120,7 +122,7 @@ function OverviewTab({ range }: { range: DateRangeParams }) {
             <RowStat label="No-show" value={data.bookings.noShow} />
           </CardContent>
         </Card>
-        <Card>
+        <Card className="min-w-0 overflow-hidden">
           <CardHeader>
             <CardTitle className="text-base">Campaign performance</CardTitle>
           </CardHeader>
@@ -144,8 +146,8 @@ function RevenueTab({ range }: { range: DateRangeParams }) {
   if (isLoading || !data) return <LoadingBlock />;
 
   return (
-    <div className="space-y-4">
-      <div className="grid gap-3 sm:grid-cols-3">
+    <div className="min-w-0 space-y-4">
+      <div className="grid min-w-0 gap-3 sm:grid-cols-3">
         <StatCard
           icon={TrendingUp}
           label="Collected"
@@ -158,11 +160,11 @@ function RevenueTab({ range }: { range: DateRangeParams }) {
         />
         <StatCard icon={Users} label="Bookings" value={data.totals.bookings} />
       </div>
-      <Card>
+      <Card className="min-w-0 overflow-hidden">
         <CardHeader>
           <CardTitle className="text-base">Daily revenue</CardTitle>
         </CardHeader>
-        <CardContent>
+        <CardContent className="min-w-0 px-2 sm:px-6">
           <RevenueChart daily={data.daily} />
         </CardContent>
       </Card>
@@ -175,16 +177,16 @@ function BookingsTab({ range }: { range: DateRangeParams }) {
   if (isLoading || !data) return <LoadingBlock />;
 
   return (
-    <div className="grid gap-4 lg:grid-cols-2">
-      <Card>
+    <div className="grid min-w-0 gap-4 lg:grid-cols-2">
+      <Card className="min-w-0 overflow-hidden">
         <CardHeader>
           <CardTitle className="text-base">By status</CardTitle>
         </CardHeader>
-        <CardContent>
+        <CardContent className="min-w-0 px-2 sm:px-6">
           <BookingStatusChart byStatus={data.byStatus} />
         </CardContent>
       </Card>
-      <Card>
+      <Card className="min-w-0 overflow-hidden">
         <CardHeader>
           <CardTitle className="text-base">Top services</CardTitle>
         </CardHeader>
@@ -230,8 +232,8 @@ function CustomersTab() {
   if (isLoading || !data) return <LoadingBlock />;
 
   return (
-    <div className="grid gap-4 lg:grid-cols-2">
-      <Card>
+    <div className="grid min-w-0 gap-4 lg:grid-cols-2">
+      <Card className="min-w-0 overflow-hidden">
         <CardHeader>
           <CardTitle className="text-base">Segments</CardTitle>
         </CardHeader>
@@ -254,7 +256,7 @@ function CustomersTab() {
         </CardContent>
       </Card>
 
-      <Card>
+      <Card className="min-w-0 overflow-hidden">
         <CardHeader>
           <CardTitle className="text-base">Top customers</CardTitle>
         </CardHeader>
@@ -307,13 +309,13 @@ function StatCard({
   detail?: string;
 }) {
   return (
-    <Card>
-      <CardContent className="p-4">
-        <div className="flex items-center justify-between">
+    <Card className="min-w-0 overflow-hidden">
+      <CardContent className="min-w-0 p-4">
+        <div className="flex min-w-0 items-center justify-between gap-3">
           <span className="text-sm text-muted-foreground">{label}</span>
-          <Icon className="size-4 text-primary" />
+          <Icon className="size-4 shrink-0 text-primary" />
         </div>
-        <div className="mt-2 text-2xl font-semibold">{value}</div>
+        <div className="mt-2 break-words text-xl font-semibold sm:text-2xl">{value}</div>
         {detail && (
           <div className="mt-1 text-xs text-muted-foreground">{detail}</div>
         )}

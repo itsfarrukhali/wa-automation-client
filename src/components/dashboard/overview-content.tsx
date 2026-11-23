@@ -19,18 +19,28 @@ import type { Customer } from "@/lib/customers";
 
 export function OverviewContent() {
   const auth = useAuth();
+  const isOwner = auth.user?.role === "owner";
   const statsQuery = useDashboardStats(auth.token);
   const bookingQuery = useBookingList({ page: 1, limit: 5, sortOrder: "desc" });
   const customerQuery = useCustomerList({ page: 1, limit: 5, sortBy: "createdAt", sortOrder: "desc" });
   const inboxQuery = useInbox({ status: "all" });
-  const campaignQuery = useCampaignList({ page: 1, limit: 3 });
+  const campaignQuery = useCampaignList(
+    { page: 1, limit: 3 },
+    { enabled: isOwner },
+  );
 
   const stats = statsQuery.data;
   const bookings = bookingQuery.data?.bookings ?? [];
   const customers = customerQuery.data?.customers ?? [];
   const conversations = inboxQuery.data?.conversations ?? [];
   const campaigns = campaignQuery.data?.campaigns ?? [];
-  const firstError = [statsQuery.error, bookingQuery.error, customerQuery.error, inboxQuery.error, campaignQuery.error].find(Boolean);
+  const firstError = [
+    statsQuery.error,
+    bookingQuery.error,
+    customerQuery.error,
+    inboxQuery.error,
+    isOwner ? campaignQuery.error : null,
+  ].find(Boolean);
 
   const bookingColumns = useMemo<ColumnDef<Booking>[]>(
     () => [
@@ -78,7 +88,7 @@ export function OverviewContent() {
   if (!auth.user) return null;
 
   return (
-    <>
+    <div className="min-w-0 overflow-x-hidden">
       <section className="flex flex-col gap-4 md:flex-row md:items-end md:justify-between">
         <div>
           <p className="text-sm text-muted-foreground">
@@ -88,9 +98,11 @@ export function OverviewContent() {
             {auth.user.name.split(" ")[0]}&apos;s workspace
           </h1>
         </div>
-        <Button asChild>
-          <Link href="/dashboard/campaigns"><Send className="size-4" />New campaign</Link>
-        </Button>
+        {isOwner && (
+          <Button asChild>
+            <Link href="/dashboard/campaigns"><Send className="size-4" />New campaign</Link>
+          </Button>
+        )}
       </section>
 
       {firstError && (
@@ -99,23 +111,23 @@ export function OverviewContent() {
         </div>
       )}
 
-      <section className="mt-5 grid gap-3 md:grid-cols-2 xl:grid-cols-4">
+      <section className="mt-5 grid min-w-0 gap-3 sm:grid-cols-2 xl:grid-cols-4">
         <Metric title="Needs reply" value={queryValue(inboxQuery.isLoading, conversations.filter((item) => item.needsHuman).length)} detail="Open WhatsApp conversations" icon={Inbox} />
         <Metric title="Today's bookings" value={queryValue(statsQuery.isLoading, stats?.bookings.today)} detail={`${stats?.bookings.pending ?? 0} pending overall`} icon={CalendarDays} />
         <Metric title="Customers" value={queryValue(statsQuery.isLoading, stats?.customers.total)} detail={`${stats?.customers.active ?? 0} active in 30 days`} icon={Users} />
         <Metric title="Messages this month" value={queryValue(statsQuery.isLoading, stats?.messages.thisMonth)} detail={`${stats?.messages.failed ?? 0} failed`} icon={MessageSquareText} />
       </section>
 
-      <section className="mt-5 grid gap-4 xl:grid-cols-[1fr_380px]">
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between">
+      <section className="mt-5 grid min-w-0 gap-4 xl:grid-cols-[minmax(0,1fr)_380px]">
+        <Card className="min-w-0 overflow-hidden">
+          <CardHeader className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
             <div><CardTitle>Recent bookings</CardTitle><p className="text-sm text-muted-foreground">Latest appointments and payment values.</p></div>
             <Button variant="outline" size="sm" asChild><Link href="/dashboard/bookings"><CalendarDays className="size-4" />Manage</Link></Button>
           </CardHeader>
-          <CardContent><DataTable columns={bookingColumns} data={bookings} searchKey="customer" searchPlaceholder="Filter bookings" /></CardContent>
+          <CardContent className="min-w-0 px-3 sm:px-6"><DataTable columns={bookingColumns} data={bookings} searchKey="customer" searchPlaceholder="Filter bookings" /></CardContent>
         </Card>
 
-        <Card>
+        <Card className="min-w-0 overflow-hidden">
           <CardHeader><CardTitle>Inbox</CardTitle><p className="text-sm text-muted-foreground">Latest customer conversations.</p></CardHeader>
           <CardContent className="space-y-3">
             {conversations.length === 0 && !inboxQuery.isLoading ? (
@@ -132,14 +144,14 @@ export function OverviewContent() {
         </Card>
       </section>
 
-      <section className="mt-5 grid gap-4 xl:grid-cols-[1fr_380px]">
-        <Card>
+      <section className="mt-5 grid min-w-0 gap-4 xl:grid-cols-[minmax(0,1fr)_380px]">
+        <Card className="min-w-0 overflow-hidden">
           <CardHeader><CardTitle>Recent customers</CardTitle><p className="text-sm text-muted-foreground">Newly added customer records and segments.</p></CardHeader>
-          <CardContent><DataTable columns={customerColumns} data={customers} searchKey="name" searchPlaceholder="Filter customers" /></CardContent>
+          <CardContent className="min-w-0 px-3 sm:px-6"><DataTable columns={customerColumns} data={customers} searchKey="name" searchPlaceholder="Filter customers" /></CardContent>
         </Card>
 
         <div className="space-y-4">
-          <Card>
+          {isOwner && <Card className="min-w-0 overflow-hidden">
             <CardHeader className="flex flex-row items-center justify-between">
               <CardTitle>Campaign queue</CardTitle>
               <Button variant="ghost" size="sm" asChild><Link href="/dashboard/campaigns">View all<ChevronRight className="size-4" /></Link></Button>
@@ -151,7 +163,7 @@ export function OverviewContent() {
                 <CampaignRow key={campaign._id} title={campaign.name} meta={`${campaign.metrics.eligibleRecipients ?? 0} recipients`} progress={campaign.status} />
               ))}
             </CardContent>
-          </Card>
+          </Card>}
 
           <Card>
             <CardHeader>
@@ -172,12 +184,12 @@ export function OverviewContent() {
           </Card>
         </div>
       </section>
-    </>
+    </div>
   );
 }
 
 function Metric({ title, value, detail, icon: Icon }: { title: string; value: string | number; detail: string; icon: typeof Inbox }) {
-  return <Card><CardContent className="p-4"><div className="flex items-center justify-between"><div className="text-sm text-muted-foreground">{title}</div><Icon className="size-4 text-primary" /></div><div className="mt-3 text-2xl font-semibold">{value}</div><div className="mt-1 text-xs text-muted-foreground">{detail}</div></CardContent></Card>;
+  return <Card className="min-w-0 overflow-hidden"><CardContent className="min-w-0 p-4"><div className="flex min-w-0 items-center justify-between gap-3"><div className="min-w-0 text-sm text-muted-foreground">{title}</div><Icon className="size-4 shrink-0 text-primary" /></div><div className="mt-3 break-words text-xl font-semibold sm:text-2xl">{value}</div><div className="mt-1 break-words text-xs text-muted-foreground">{detail}</div></CardContent></Card>;
 }
 
 function StatusBadge({ status }: { status: Booking["status"] }) {

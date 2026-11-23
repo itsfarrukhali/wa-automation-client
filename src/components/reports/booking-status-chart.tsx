@@ -42,8 +42,8 @@ export function BookingStatusChart({
   }
 
   return (
-    <ChartContainer config={chartConfig} className="h-64 w-full">
-      <BarChart data={data} layout="vertical" margin={{ left: 16 }}>
+    <ChartContainer config={chartConfig} className="h-64 min-w-0 w-full">
+      <BarChart data={data} layout="vertical" margin={{ left: 0, right: 8 }}>
         <CartesianGrid horizontal={false} strokeDasharray="3 3" />
         <XAxis type="number" tickLine={false} axisLine={false} />
         <YAxis
@@ -51,7 +51,8 @@ export function BookingStatusChart({
           dataKey="status"
           tickLine={false}
           axisLine={false}
-          width={90}
+          width={72}
+          tick={{ fontSize: 11 }}
         />
         <ChartTooltip content={<ChartTooltipContent />} />
         <Bar dataKey="count" radius={4} />

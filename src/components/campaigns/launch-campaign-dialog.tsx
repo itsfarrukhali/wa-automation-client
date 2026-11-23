@@ -35,7 +35,7 @@ export function LaunchCampaignDialog({
     try {
       const result = await launchCampaign.mutateAsync({
         id: campaign._id,
-        body: { dryRun: true },
+        body: { dryRun: true, sendMode: "template" },
       });
       if (result.dryRun) setDryRunResult(result);
     } catch (err) {
@@ -51,7 +51,11 @@ export function LaunchCampaignDialog({
     try {
       await launchCampaign.mutateAsync({
         id: campaign._id,
-        body: { dryRun: false, allowPartial: true },
+        body: {
+          dryRun: false,
+          allowPartial: true,
+          sendMode: "template",
+        },
       });
       handleClose();
     } catch (err) {
