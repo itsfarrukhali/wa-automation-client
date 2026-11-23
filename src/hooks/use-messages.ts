@@ -3,7 +3,9 @@
 
 import { useEffect, useSyncExternalStore } from "react";
 import {
+  InfiniteData,
   QueryClient,
+  useInfiniteQuery,
   useMutation,
   useQuery,
   useQueryClient,
@@ -73,14 +75,19 @@ export function useInbox(
 export function useConversationThread(customerId: string | null) {
   const { token } = useAuth();
   const status = useMessageRealtimeStatus();
-  return useQuery({
+  return useInfiniteQuery({
     queryKey: [KEY, "thread", customerId],
-    queryFn: () =>
+    queryFn: ({ pageParam }) =>
       getConversationThread(
         customerId as string,
-        { limit: 50 },
+        { before: pageParam, limit: 50 },
         token as string,
       ),
+    initialPageParam: undefined as string | undefined,
+    getNextPageParam: (lastPage) =>
+      lastPage.messages.length === 50 && lastPage.nextBefore
+        ? lastPage.nextBefore
+        : undefined,
     enabled: Boolean(token) && Boolean(customerId),
     refetchInterval:
       status === "connected" ? false : FALLBACK_REFETCH_INTERVAL_MS,
@@ -88,6 +95,8 @@ export function useConversationThread(customerId: string | null) {
     refetchOnWindowFocus: true,
   });
 }
+
+type ThreadHistory = InfiniteData<ConversationThread, string | undefined>;
 
 export function useMessageEvents() {
   const { token } = useAuth();
@@ -235,7 +244,7 @@ async function addOptimisticMessage(
 ) {
   const queryKey = [KEY, "thread", customerId] as const;
   await queryClient.cancelQueries({ queryKey });
-  const previous = queryClient.getQueryData<ConversationThread>(queryKey);
+  const previous = queryClient.getQueryData<ThreadHistory>(queryKey);
   const now = new Date().toISOString();
   const optimisticId = `optimistic-${Date.now()}`;
   const optimisticMessage: Message = {
@@ -250,18 +259,26 @@ async function addOptimisticMessage(
     createdAt: now,
   };
 
-  queryClient.setQueryData<ConversationThread>(queryKey, (current) =>
-    current
-      ? { ...current, messages: [optimisticMessage, ...current.messages] }
-      : current,
-  );
+  queryClient.setQueryData<ThreadHistory>(queryKey, (current) => {
+    if (!current?.pages[0]) return current;
+    return {
+      ...current,
+      pages: [
+        {
+          ...current.pages[0],
+          messages: [optimisticMessage, ...current.pages[0].messages],
+        },
+        ...current.pages.slice(1),
+      ],
+    };
+  });
   return { previous, optimisticId };
 }
 
 function restoreThread(
   queryClient: ReturnType<typeof useQueryClient>,
   customerId: string,
-  previous?: ConversationThread,
+  previous?: ThreadHistory,
 ) {
   if (previous) {
     queryClient.setQueryData([KEY, "thread", customerId], previous);
@@ -274,18 +291,27 @@ function replaceOptimisticMessage(
   optimisticId: string | undefined,
   message: Message,
 ) {
-  queryClient.setQueryData<ConversationThread>(
+  queryClient.setQueryData<ThreadHistory>(
     [KEY, "thread", customerId],
     (current) => {
       if (!current) return current;
-      const withoutServerDuplicate = current.messages.filter(
-        (item) => item._id !== message._id,
-      );
       return {
         ...current,
-        messages: withoutServerDuplicate.map((item) =>
-          item._id === optimisticId ? message : item,
-        ),
+        pages: current.pages.map((page, pageIndex) => {
+          const withoutServerDuplicate = page.messages.filter(
+            (item) => item._id !== message._id,
+          );
+          const messages = withoutServerDuplicate.map((item) =>
+            item._id === optimisticId ? message : item,
+          );
+          if (pageIndex === 0 && !messages.some((item) => item._id === message._id)) {
+            const replacedOptimistic = page.messages.some(
+              (item) => item._id === optimisticId,
+            );
+            if (!replacedOptimistic) messages.unshift(message);
+          }
+          return { ...page, messages };
+        }),
       };
     },
   );
@@ -295,11 +321,13 @@ function applyMessageEvent(queryClient: QueryClient, event: MessageEvent) {
   const { customerId, message, messageId } = event;
 
   if (customerId && message?._id) {
-    queryClient.setQueryData<ConversationThread>(
+    queryClient.setQueryData<ThreadHistory>(
       [KEY, "thread", customerId],
       (current) => {
-        if (!current) return current;
-        const existing = current.messages.find((item) => item._id === message._id);
+        if (!current?.pages[0]) return current;
+        const existing = current.pages
+          .flatMap((page) => page.messages)
+          .find((item) => item._id === message._id);
         const nextMessage = existing
           ? {
               ...existing,
@@ -314,11 +342,16 @@ function applyMessageEvent(queryClient: QueryClient, event: MessageEvent) {
 
         return {
           ...current,
-          messages: existing
-            ? current.messages.map((item) =>
-                item._id === message._id ? nextMessage : item,
-              )
-            : [nextMessage, ...current.messages],
+          pages: current.pages.map((page, pageIndex) => ({
+            ...page,
+            messages: existing
+              ? page.messages.map((item) =>
+                  item._id === message._id ? nextMessage : item,
+                )
+              : pageIndex === 0
+                ? [nextMessage, ...page.messages]
+                : page.messages,
+          })),
         };
       },
     );

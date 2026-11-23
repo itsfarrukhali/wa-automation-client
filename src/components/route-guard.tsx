@@ -23,6 +23,10 @@ export function RouteGuard({ children }: { children: ReactNode }) {
       router.replace("/verify-email");
       return;
     }
+    if (user.role === "admin" || user.role === "superadmin") {
+      router.replace("/platform-admin");
+      return;
+    }
 
     let cancelled = false;
     getOnboardingStatus(token)

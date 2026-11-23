@@ -25,25 +25,27 @@ import { logout as logoutRequest } from "@/lib/auth";
 import { cn } from "@/lib/utils";
 
 function getNavItems(role: string | undefined) {
-  const base = [
+  const operational = [
     { label: "Overview", href: "/dashboard", icon: LayoutDashboard },
     { label: "Inbox", href: "/dashboard/inbox", icon: Inbox },
-    { label: "Services", href: "/dashboard/services", icon: Scissors },
     { label: "Bookings", href: "/dashboard/bookings", icon: CalendarDays },
     { label: "Customers", href: "/dashboard/customers", icon: Users },
+  ];
+
+  if (role !== "owner") return operational;
+
+  return [
+    operational[0],
+    operational[1],
+    { label: "Services", href: "/dashboard/services", icon: Scissors },
+    operational[2],
+    operational[3],
+    { label: "Staff", href: "/dashboard/staff", icon: UserCog },
     { label: "Templates", href: "/dashboard/templates", icon: FileText },
     { label: "Campaigns", href: "/dashboard/campaigns", icon: Megaphone },
     { label: "Billing", href: "/dashboard/billing", icon: CreditCard },
     { label: "Reports", href: "/dashboard/reports", icon: BarChart3 },
   ];
-  if (role === "owner") {
-    base.splice(5, 0, {
-      label: "Staff",
-      href: "/dashboard/staff",
-      icon: UserCog,
-    });
-  }
-  return base;
 }
 
 export function DashboardShell({ children }: { children: React.ReactNode }) {
@@ -113,16 +115,18 @@ export function DashboardShell({ children }: { children: React.ReactNode }) {
                 >
                   <Bell className="size-4" />
                 </Button>
-                <Button
-                  asChild
-                  variant="outline"
-                  size="icon"
-                  aria-label="Settings"
-                >
-                  <Link href="/dashboard/settings">
-                    <Settings className="size-4" />
-                  </Link>
-                </Button>
+                {user.role === "owner" && (
+                  <Button
+                    asChild
+                    variant="outline"
+                    size="icon"
+                    aria-label="Settings"
+                  >
+                    <Link href="/dashboard/settings">
+                      <Settings className="size-4" />
+                    </Link>
+                  </Button>
+                )}
                 <Button
                   variant="outline"
                   size="icon"

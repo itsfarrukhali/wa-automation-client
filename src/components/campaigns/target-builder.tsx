@@ -4,7 +4,6 @@
 import { useState } from "react";
 import { Users } from "lucide-react";
 import { Input } from "@/components/ui/input";
-import { Checkbox } from "@/components/ui/checkbox";
 import { Field } from "@/components/onboarding/field";
 import { CustomerCombobox } from "@/components/bookings/customer-combobox";
 import {

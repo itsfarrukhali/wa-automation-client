@@ -10,7 +10,9 @@ import {
   Eye,
   Pencil,
   Trash2,
+  MessageCircle,
 } from "lucide-react";
+import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
@@ -48,6 +50,7 @@ const TAG_OPTIONS = [
 ] as const;
 
 export default function CustomersPage() {
+  const router = useRouter();
   const [search, setSearch] = useState("");
   const debouncedSearch = useDebouncedValue(search);
   const [status, setStatus] = useState("");
@@ -240,6 +243,16 @@ export default function CustomersPage() {
                             </Button>
                           </DropdownMenuTrigger>
                           <DropdownMenuContent align="end">
+                            <DropdownMenuItem
+                              onClick={() =>
+                                router.push(
+                                  `/dashboard/inbox?customerId=${customer._id}`,
+                                )
+                              }
+                            >
+                              <MessageCircle className="size-4" />
+                              Message
+                            </DropdownMenuItem>
                             <DropdownMenuItem
                               onClick={() => setViewingCustomerId(customer._id)}
                             >

@@ -54,8 +54,11 @@ export function AuthCard({ mode }: { mode: "login" | "signup" }) {
           });
 
       auth.setSession(session);
+      const destination = ["admin", "superadmin"].includes(session.user.role)
+        ? "/platform-admin"
+        : "/dashboard";
       router.push(
-        session.user.isEmailVerified ? "/dashboard" : "/verify-email",
+        session.user.isEmailVerified ? destination : "/verify-email",
       );
     } catch (err) {
       const message =

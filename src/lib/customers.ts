@@ -38,6 +38,7 @@ export type Customer = {
   totalAppointments: number;
   lastVisit: string | null;
   whatsappOptIn: boolean;
+  consentGiven: boolean;
   optedOut: boolean;
   notes?: string;
   birthdate?: string | null;
