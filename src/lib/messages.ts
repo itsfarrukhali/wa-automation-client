@@ -160,3 +160,17 @@ export async function markMessageRead(messageId: string, token: string) {
   );
   return res.data.message;
 }
+
+export async function markConversationRead(
+  customerId: string,
+  token: string,
+) {
+  const res = await apiRequest<ApiEnvelope<{ updated: number }>>(
+    `/messages/conversations/${customerId}/read`,
+    {
+      method: "PATCH",
+      token,
+    },
+  );
+  return res.data;
+}

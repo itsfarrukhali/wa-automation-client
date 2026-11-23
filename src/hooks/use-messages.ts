@@ -20,6 +20,7 @@ import {
   markMessageRead,
   sendTemplateMessage,
   sendTextMessage,
+  markConversationRead,
 } from "@/lib/messages";
 
 const KEY = "messages";
@@ -378,5 +379,17 @@ export function useMarkMessageRead() {
       markMessageRead(messageId, token as string),
     onSuccess: () =>
       queryClient.invalidateQueries({ queryKey: [KEY, "inbox"] }),
+  });
+}
+
+export function useMarkConversationRead() {
+  const { token } = useAuth();
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (customerId: string) =>
+      markConversationRead(customerId, token as string),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: [KEY, "inbox"] });
+    },
   });
 }

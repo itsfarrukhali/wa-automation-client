@@ -82,3 +82,53 @@ export async function getPlatformOverview(token: string) {
     businesses: businesses.data,
   };
 }
+
+export async function setPlatformUserActive(
+  userId: string,
+  isActive: boolean,
+  token: string,
+) {
+  const response = await apiRequest<ApiEnvelope<{ user: PlatformUser }>>(
+    `/admin/users/${userId}/status`,
+    { method: "PATCH", body: JSON.stringify({ isActive }), token },
+  );
+  return response.data.user;
+}
+
+export async function verifyPlatformUserEmail(userId: string, token: string) {
+  const response = await apiRequest<ApiEnvelope<{ user: PlatformUser }>>(
+    `/admin/users/${userId}/verify-email`,
+    { method: "POST", token },
+  );
+  return response.data.user;
+}
+
+export async function setPlatformBusinessActive(
+  businessId: string,
+  isActive: boolean,
+  token: string,
+) {
+  const response = await apiRequest<
+    ApiEnvelope<{ business: PlatformBusiness }>
+  >(`/admin/businesses/${businessId}/status`, {
+    method: "PATCH",
+    body: JSON.stringify({ isActive }),
+    token,
+  });
+  return response.data.business;
+}
+
+export async function setPlatformBusinessVerified(
+  businessId: string,
+  isVerified: boolean,
+  token: string,
+) {
+  const response = await apiRequest<
+    ApiEnvelope<{ business: PlatformBusiness }>
+  >(`/admin/businesses/${businessId}/verify`, {
+    method: "PATCH",
+    body: JSON.stringify({ isVerified }),
+    token,
+  });
+  return response.data.business;
+}

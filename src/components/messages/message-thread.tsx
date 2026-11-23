@@ -21,6 +21,7 @@ import {
 import { Button } from "@/components/ui/button";
 import {
   useConversationThread,
+  useMarkConversationRead,
   useSendTemplateMessage,
   useSendTextMessage,
 } from "@/hooks/use-messages";
@@ -50,6 +51,7 @@ export function MessageThread({
   } = useConversationThread(customerId);
   const sendMessage = useSendTextMessage();
   const sendTemplate = useSendTemplateMessage();
+  const { mutate: markConversationRead } = useMarkConversationRead();
   const { data: templateData } = useTemplateList();
   const [draft, setDraft] = useState("");
   const [mode, setMode] = useState<"text" | "template">("text");
@@ -85,6 +87,10 @@ export function MessageThread({
     (template) => template.status === "APPROVED",
   );
   const newestMessage = messages.at(-1);
+
+  useEffect(() => {
+    if (customerId) markConversationRead(customerId);
+  }, [customerId, markConversationRead]);
 
   useEffect(() => {
     const container = scrollRef.current;
