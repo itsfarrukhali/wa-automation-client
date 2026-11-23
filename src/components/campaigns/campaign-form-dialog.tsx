@@ -44,12 +44,17 @@ export function CampaignFormDialog({
   );
 
   const [target, setTarget] = useState<CampaignTarget>({});
+  const [selectedTemplateName, setSelectedTemplateName] = useState("");
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [formError, setFormError] = useState("");
+  const selectedTemplate = approvedTemplates.find(
+    (template) => template.name === selectedTemplateName,
+  );
 
   useEffect(() => {
     if (open) {
       setTarget(campaign?.target ?? {});
+      setSelectedTemplateName(campaign?.whatsappTemplate?.templateName ?? "");
       setErrors({});
       setFormError("");
     }
@@ -61,15 +66,25 @@ export function CampaignFormDialog({
     setFormError("");
 
     const form = new FormData(event.currentTarget);
+    const templateName = String(form.get("templateName") ?? "");
+    const template = approvedTemplates.find(
+      (item) => item.name === templateName,
+    );
     const body = {
       name: String(form.get("name") ?? "").trim(),
       description: String(form.get("description") ?? "").trim() || undefined,
       type: String(form.get("type") ?? "promo") as Campaign["type"],
       message: String(form.get("message") ?? "").trim(),
       whatsappTemplate: {
-        templateName: String(form.get("templateName") ?? ""),
-        language: String(form.get("language") ?? "en"),
-        category: String(form.get("category") ?? "MARKETING"),
+        templateName,
+        language:
+          template?.language ??
+          campaign?.whatsappTemplate?.language ??
+          "en_US",
+        category:
+          template?.category ??
+          campaign?.whatsappTemplate?.category ??
+          "MARKETING",
       },
       scheduledAt: String(form.get("scheduledAt") ?? "") || undefined,
       target,
@@ -151,14 +166,15 @@ export function CampaignFormDialog({
             />
           </Field>
 
-          <div className="grid gap-4 sm:grid-cols-3">
+          <div className="space-y-2">
             <Field
               label="WhatsApp template"
               error={errors["whatsappTemplate.templateName"]}
             >
               <select
                 name="templateName"
-                defaultValue={campaign?.whatsappTemplate?.templateName}
+                value={selectedTemplateName}
+                onChange={(event) => setSelectedTemplateName(event.target.value)}
                 required
                 className="flex h-9 w-full rounded-md border border-input bg-background px-2 text-sm shadow-sm"
               >
@@ -175,29 +191,11 @@ export function CampaignFormDialog({
                 </span>
               )}
             </Field>
-            <Field label="Language">
-              <select
-                name="language"
-                defaultValue={campaign?.whatsappTemplate?.language ?? "ur"}
-                className="flex h-9 w-full rounded-md border border-input bg-background px-2 text-sm shadow-sm"
-              >
-                <option value="ur">Urdu</option>
-                <option value="en">English</option>
-              </select>
-            </Field>
-            <Field label="Category">
-              <select
-                name="category"
-                defaultValue={
-                  campaign?.whatsappTemplate?.category ?? "MARKETING"
-                }
-                className="flex h-9 w-full rounded-md border border-input bg-background px-2 text-sm shadow-sm"
-              >
-                <option value="MARKETING">Marketing</option>
-                <option value="UTILITY">Utility</option>
-                <option value="AUTHENTICATION">Authentication</option>
-              </select>
-            </Field>
+            {selectedTemplate && (
+              <p className="text-xs text-muted-foreground">
+                Meta language: {selectedTemplate.language} · Category: {selectedTemplate.category}
+              </p>
+            )}
           </div>
 
           <Field
