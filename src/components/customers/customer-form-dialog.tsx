@@ -1,6 +1,6 @@
 "use client";
 
-import { FormEvent, useEffect, useState } from "react";
+import { FormEvent, useEffect, useRef, useState } from "react";
 import {
   Dialog,
   DialogContent,
@@ -18,6 +18,7 @@ import type {
   CustomerSource,
   CustomerStatus,
   CustomerTag,
+  WhatsAppOptInSource,
 } from "@/lib/customers";
 
 const SOURCE_OPTIONS: CustomerSource[] = [
@@ -42,15 +43,28 @@ const TAG_OPTIONS: CustomerTag[] = [
   "inactive",
 ];
 const STATUS_OPTIONS: CustomerStatus[] = ["active", "inactive", "blocked"];
+const OPT_IN_SOURCE_OPTIONS: Array<{
+  value: WhatsAppOptInSource;
+  label: string;
+}> = [
+  { value: "customer_request", label: "Customer asked us directly" },
+  { value: "website_form", label: "Website or booking form" },
+  { value: "written_consent", label: "Written consent" },
+  { value: "verbal_consent", label: "Verbal consent" },
+  { value: "whatsapp_inbound", label: "Customer messaged on WhatsApp" },
+  { value: "imported_record", label: "Imported consent record" },
+];
 
 export function CustomerFormDialog({
   open,
   onOpenChange,
   customer,
+  onCreated,
 }: {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   customer: Customer | null;
+  onCreated?: (customer: Customer) => void;
 }) {
   const isEdit = Boolean(customer);
   const createCustomer = useCreateCustomer();
@@ -58,12 +72,16 @@ export function CustomerFormDialog({
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [formError, setFormError] = useState("");
   const [selectedTags, setSelectedTags] = useState<CustomerTag[]>([]);
+  const [whatsappOptIn, setWhatsappOptIn] = useState(false);
+  const submitIntent = useRef<"save" | "message">("save");
 
   useEffect(() => {
     if (open) {
       setErrors({});
       setFormError("");
       setSelectedTags(customer?.tags ?? []);
+      setWhatsappOptIn(customer?.whatsappOptIn ?? false);
+      submitIntent.current = "save";
     }
   }, [open, customer]);
 
@@ -87,7 +105,10 @@ export function CustomerFormDialog({
       email: String(form.get("email") ?? "").trim() || undefined,
       source: String(form.get("source") ?? "manual"),
       tags: selectedTags,
-      whatsappOptIn: form.get("whatsappOptIn") === "on",
+      whatsappOptIn,
+      whatsappOptInSource: whatsappOptIn
+        ? String(form.get("whatsappOptInSource") ?? "customer_request")
+        : undefined,
       consentGiven: form.get("consentGiven") === "on",
       notes: String(form.get("notes") ?? "").trim() || undefined,
     };
@@ -97,7 +118,8 @@ export function CustomerFormDialog({
       if (isEdit && customer) {
         await updateCustomer.mutateAsync({ id: customer._id, body });
       } else {
-        await createCustomer.mutateAsync(body as never);
+        const created = await createCustomer.mutateAsync(body as never);
+        if (submitIntent.current === "message") onCreated?.(created);
       }
       onOpenChange(false);
     } catch (err) {
@@ -206,15 +228,43 @@ export function CustomerFormDialog({
             </div>
           </div>
 
-          <div className="flex flex-col gap-2 sm:flex-row sm:gap-6">
+          <div className="space-y-3 rounded-lg border bg-muted/30 p-3">
             <label className="flex items-center gap-2 text-sm">
               <input
                 type="checkbox"
                 name="whatsappOptIn"
-                defaultChecked={customer?.whatsappOptIn ?? false}
+                checked={whatsappOptIn}
+                onChange={(event) => setWhatsappOptIn(event.target.checked)}
               />
-              WhatsApp opt-in
+              Customer has given permission to receive WhatsApp messages
             </label>
+            {whatsappOptIn && (
+              <Field
+                label="How permission was given"
+                error={errors.whatsappOptInSource}
+              >
+                <select
+                  name="whatsappOptInSource"
+                  defaultValue={
+                    customer?.whatsappOptInSource ?? "customer_request"
+                  }
+                  className="flex h-9 w-full rounded-md border border-input bg-background px-3 py-1 text-sm shadow-sm"
+                >
+                  {OPT_IN_SOURCE_OPTIONS.map((option) => (
+                    <option key={option.value} value={option.value}>
+                      {option.label}
+                    </option>
+                  ))}
+                </select>
+              </Field>
+            )}
+            <p className="text-xs leading-5 text-muted-foreground">
+              Keep permission records accurate. Zario records when and how the
+              customer opted in.
+            </p>
+          </div>
+
+          <div className="flex flex-col gap-2 sm:flex-row sm:gap-6">
             <label className="flex items-center gap-2 text-sm">
               <input
                 type="checkbox"
@@ -249,12 +299,30 @@ export function CustomerFormDialog({
             >
               Cancel
             </Button>
-            <Button type="submit" disabled={isSubmitting}>
+            {!isEdit && (
+              <Button
+                type="submit"
+                variant="outline"
+                disabled={isSubmitting}
+                onClick={() => {
+                  submitIntent.current = "save";
+                }}
+              >
+                {isSubmitting ? "Saving..." : "Save customer"}
+              </Button>
+            )}
+            <Button
+              type="submit"
+              disabled={isSubmitting || (!isEdit && !whatsappOptIn)}
+              onClick={() => {
+                submitIntent.current = isEdit ? "save" : "message";
+              }}
+            >
               {isSubmitting
                 ? "Saving..."
                 : isEdit
                   ? "Save changes"
-                  : "Create customer"}
+                  : "Save & message"}
             </Button>
           </DialogFooter>
         </form>

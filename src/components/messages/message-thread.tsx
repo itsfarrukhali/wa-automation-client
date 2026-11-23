@@ -8,6 +8,7 @@ import {
   useRef,
   useState,
 } from "react";
+import Link from "next/link";
 import {
   AlertCircle,
   ArrowLeft,
@@ -75,14 +76,19 @@ export function MessageThread({
     });
   }, [data]);
 
-  const populatedCustomer = messages
+  const threadCustomer = data?.pages[0]?.customer;
+  const populatedCustomer =
+    messages
     .map((message) => message.customerId)
     .find(
       (customer): customer is Exclude<typeof customer, string | undefined> =>
         Boolean(customer) && typeof customer !== "string",
-    );
+    ) ?? threadCustomer;
+  const customerServiceWindowOpen =
+    data?.pages[0]?.customerServiceWindowOpen ?? false;
   const isOptedOut =
     populatedCustomer?.whatsappOptIn === false || populatedCustomer?.optedOut;
+  const effectiveMode = customerServiceWindowOpen ? mode : "template";
   const approvedTemplates = (templateData?.templates ?? []).filter(
     (template) => template.status === "APPROVED",
   );
@@ -169,7 +175,7 @@ export function MessageThread({
     setSendError("");
 
     try {
-      if (mode === "template") {
+      if (effectiveMode === "template") {
         const template = approvedTemplates.find(
           (item) => item.id === templateId,
         );
@@ -313,7 +319,7 @@ export function MessageThread({
               <MessageSquare className="mx-auto size-8 text-muted-foreground/60" />
               <p className="mt-3 text-sm font-medium">No messages yet</p>
               <p className="mt-1 text-sm text-muted-foreground">
-                Send the first message using the composer below.
+                Select an approved template below to start the conversation.
               </p>
             </div>
           </div>
@@ -406,13 +412,23 @@ export function MessageThread({
           </div>
         )}
 
+        {!isOptedOut && !customerServiceWindowOpen && (
+          <div className="flex items-start gap-2 rounded-md border border-blue-200 bg-blue-50 px-3 py-2 text-xs text-blue-800">
+            <FileText className="mt-0.5 size-4 shrink-0" />
+            <span>
+              Start this conversation with an approved WhatsApp template.
+              Normal replies become available after the customer responds.
+            </span>
+          </div>
+        )}
+
         <div className="flex items-center gap-1">
           <Button
             type="button"
             size="sm"
-            variant={mode === "text" ? "default" : "ghost"}
+            variant={effectiveMode === "text" ? "default" : "ghost"}
             onClick={() => setMode("text")}
-            disabled={isOptedOut}
+            disabled={isOptedOut || !customerServiceWindowOpen}
           >
             <MessageSquare className="size-4" />
             Text
@@ -420,7 +436,7 @@ export function MessageThread({
           <Button
             type="button"
             size="sm"
-            variant={mode === "template" ? "default" : "ghost"}
+            variant={effectiveMode === "template" ? "default" : "ghost"}
             onClick={() => setMode("template")}
             disabled={isOptedOut}
           >
@@ -430,21 +446,36 @@ export function MessageThread({
         </div>
 
         <div className="flex items-end gap-2">
-          {mode === "template" ? (
-            <select
-              className="h-10 min-w-0 flex-1 rounded-md border border-input bg-background px-3 text-sm shadow-sm"
-              value={templateId}
-              onChange={(event) => setTemplateId(event.target.value)}
-              disabled={sendTemplate.isPending || isOptedOut}
-              aria-label="Approved WhatsApp template"
-            >
-              <option value="">Select an approved template</option>
-              {approvedTemplates.map((template) => (
-                <option key={template.id} value={template.id}>
-                  {template.name} ({template.language})
-                </option>
-              ))}
-            </select>
+          {effectiveMode === "template" ? (
+            <div className="min-w-0 flex-1">
+              <select
+                className="h-10 w-full rounded-md border border-input bg-background px-3 text-sm shadow-sm"
+                value={templateId}
+                onChange={(event) => setTemplateId(event.target.value)}
+                disabled={sendTemplate.isPending || isOptedOut}
+                aria-label="Approved WhatsApp template"
+              >
+                <option value="">Select an approved template</option>
+                {approvedTemplates.map((template) => (
+                  <option key={template.id} value={template.id}>
+                    {template.name} ({template.language})
+                  </option>
+                ))}
+              </select>
+              {approvedTemplates.length === 0 && (
+                <p className="mt-1.5 text-xs text-muted-foreground">
+                  No approved templates are available. Sync one from Meta on
+                  the{" "}
+                  <Link
+                    href="/dashboard/templates"
+                    className="font-medium text-primary hover:underline"
+                  >
+                    Templates page
+                  </Link>
+                  .
+                </p>
+              )}
+            </div>
           ) : (
             <textarea
               value={draft}
@@ -461,12 +492,14 @@ export function MessageThread({
             type="submit"
             size="icon"
             className="size-10 shrink-0"
-            aria-label={mode === "template" ? "Send template" : "Send message"}
+            aria-label={
+              effectiveMode === "template" ? "Send template" : "Send message"
+            }
             disabled={
               sendMessage.isPending ||
               sendTemplate.isPending ||
               isOptedOut ||
-              (mode === "text" ? !draft.trim() : !templateId)
+              (effectiveMode === "text" ? !draft.trim() : !templateId)
             }
           >
             {sendMessage.isPending || sendTemplate.isPending ? (
@@ -476,7 +509,7 @@ export function MessageThread({
             )}
           </Button>
         </div>
-        {mode === "text" && (
+        {effectiveMode === "text" && (
           <p className="hidden text-xs text-muted-foreground sm:block">
             Press Enter to send · Shift + Enter for a new line
           </p>

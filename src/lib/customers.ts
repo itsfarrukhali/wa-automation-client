@@ -15,6 +15,14 @@ export type CustomerSource =
 
 export type CustomerStatus = "active" | "inactive" | "blocked";
 
+export type WhatsAppOptInSource =
+  | "customer_request"
+  | "website_form"
+  | "written_consent"
+  | "verbal_consent"
+  | "whatsapp_inbound"
+  | "imported_record";
+
 export type CustomerTag =
   | "vip"
   | "new"
@@ -38,6 +46,8 @@ export type Customer = {
   totalAppointments: number;
   lastVisit: string | null;
   whatsappOptIn: boolean;
+  whatsappOptInAt?: string;
+  whatsappOptInSource?: WhatsAppOptInSource;
   consentGiven: boolean;
   optedOut: boolean;
   notes?: string;
@@ -53,6 +63,7 @@ export type CustomerListParams = {
   tag?: CustomerTag;
   source?: CustomerSource;
   whatsappOptIn?: boolean;
+  whatsappOptInSource?: WhatsAppOptInSource;
   sortBy?: "createdAt" | "name" | "lastVisit" | "totalSpent" | "totalVisits";
   sortOrder?: "asc" | "desc";
 };

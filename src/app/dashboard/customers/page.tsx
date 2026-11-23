@@ -315,6 +315,9 @@ export default function CustomersPage() {
         open={formOpen}
         onOpenChange={setFormOpen}
         customer={editingCustomer}
+        onCreated={(customer) =>
+          router.push(`/dashboard/inbox?customerId=${customer._id}`)
+        }
       />
 
       <CustomerDetailSheet

@@ -60,6 +60,17 @@ export type Message = {
 
 export type ConversationThread = {
   customerId: string;
+  customer: {
+    _id: string;
+    name: string;
+    phone: string;
+    whatsappNumber?: string;
+    optedOut?: boolean;
+    whatsappOptIn?: boolean;
+    whatsappOptInAt?: string;
+    whatsappOptInSource?: string;
+  };
+  customerServiceWindowOpen: boolean;
   messages: Message[];
   nextBefore: string | null;
 };
