@@ -118,7 +118,9 @@ export function OverviewContent() {
         <Metric title="Messages this month" value={queryValue(statsQuery.isLoading, stats?.messages.thisMonth)} detail={`${stats?.messages.failed ?? 0} failed`} icon={MessageSquareText} />
       </section>
 
-      <section className="mt-5 grid min-w-0 gap-4 xl:grid-cols-[minmax(0,1fr)_380px]">
+      <section
+        className={`mt-5 grid min-w-0 gap-4 ${isOwner ? "xl:grid-cols-[minmax(0,1fr)_380px]" : ""}`}
+      >
         <Card className="min-w-0 overflow-hidden">
           <CardHeader className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
             <div><CardTitle>Recent bookings</CardTitle><p className="text-sm text-muted-foreground">Latest appointments and payment values.</p></div>
@@ -150,8 +152,9 @@ export function OverviewContent() {
           <CardContent className="min-w-0 px-3 sm:px-6"><DataTable columns={customerColumns} data={customers} searchKey="name" searchPlaceholder="Filter customers" /></CardContent>
         </Card>
 
-        <div className="space-y-4">
-          {isOwner && <Card className="min-w-0 overflow-hidden">
+        {isOwner && (
+          <div className="space-y-4">
+            <Card className="min-w-0 overflow-hidden">
             <CardHeader className="flex flex-row items-center justify-between">
               <CardTitle>Campaign queue</CardTitle>
               <Button variant="ghost" size="sm" asChild><Link href="/dashboard/campaigns">View all<ChevronRight className="size-4" /></Link></Button>
@@ -163,9 +166,9 @@ export function OverviewContent() {
                 <CampaignRow key={campaign._id} title={campaign.name} meta={`${campaign.metrics.eligibleRecipients ?? 0} recipients`} progress={campaign.status} />
               ))}
             </CardContent>
-          </Card>}
+            </Card>
 
-          <Card>
+            <Card>
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
                 {stats?.business.whatsappConnected ? <Wifi className="size-4 text-emerald-600" /> : <WifiOff className="size-4 text-destructive" />}
@@ -174,15 +177,16 @@ export function OverviewContent() {
             </CardHeader>
             <CardContent>
               <p className="text-sm text-muted-foreground">
-                {stats?.business.whatsappConnected ? "WhatsApp is connected." : "WhatsApp is not connected."} Current plan: {stats?.plan.current ?? "loading"}.
+                {stats?.business.whatsappConnected ? "WhatsApp is connected." : "WhatsApp is not connected."} Current plan: {stats?.plan?.current ?? "loading"}.
               </p>
               <p className="mt-2 text-xs text-muted-foreground">
-                {stats?.plan.messagesUsed ?? 0} of {formatLimit(stats?.plan.messagesLimit)} messages used this month
+                {stats?.plan?.messagesUsed ?? 0} of {formatLimit(stats?.plan?.messagesLimit)} messages used this month
               </p>
               <Button className="mt-4" variant="outline" asChild><Link href="/dashboard/billing">Review billing<ChevronRight className="size-4" /></Link></Button>
             </CardContent>
-          </Card>
-        </div>
+            </Card>
+          </div>
+        )}
       </section>
     </div>
   );

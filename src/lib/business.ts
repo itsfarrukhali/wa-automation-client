@@ -26,7 +26,7 @@ export type DashboardStats = {
     onboardingComplete: boolean;
     whatsappConnected: boolean;
   };
-  plan: {
+  plan?: {
     current: string;
     isTrial: boolean;
     trialEndsAt?: string;
