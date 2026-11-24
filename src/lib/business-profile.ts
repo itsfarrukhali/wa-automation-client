@@ -10,8 +10,26 @@ export type WorkingHoursDay = {
 export type BusinessProfile = {
   _id: string;
   name: string;
+  phone?: string;
+  landline?: string;
+  email?: string;
   timezone: string;
   workingHours: WorkingHoursDay[];
+  settings?: {
+    notifications?: {
+      email?: boolean;
+      whatsapp?: boolean;
+    };
+    language?: "en" | "ur";
+    currency?: string;
+  };
+  engagement?: {
+    reminderTime?: number;
+    followUpDays?: number;
+    winbackDays?: number;
+    reviewRequestEnabled?: boolean;
+    reviewPlatform?: "google" | "facebook" | "custom";
+  };
   whatsapp?: {
     phoneNumberId?: string;
     displayPhoneNumber?: string;
@@ -48,6 +66,57 @@ export async function getMyBusinessProfile(token: string) {
     { token },
   );
   return res.data.business;
+}
+
+async function updateBusiness(
+  path: string,
+  body: Record<string, unknown>,
+  token: string,
+) {
+  const res = await apiRequest<ApiEnvelope<{ business: BusinessProfile }>>(
+    path,
+    { method: "PATCH", body: JSON.stringify(body), token },
+  );
+  return res.data.business;
+}
+
+export function updateBusinessProfile(
+  body: { name: string; phone?: string; landline?: string; email?: string },
+  token: string,
+) {
+  return updateBusiness("/business/profile", body, token);
+}
+
+export function updateBusinessSettings(
+  body: {
+    notifications: { email: boolean; whatsapp: boolean };
+    language: "en" | "ur";
+    currency: string;
+  },
+  token: string,
+) {
+  return updateBusiness("/business/settings", body, token);
+}
+
+export function updateWorkingHoursDay(
+  day: WorkingHoursDay["day"],
+  body: Pick<WorkingHoursDay, "isOpen" | "openTime" | "closeTime">,
+  token: string,
+) {
+  return updateBusiness(`/business/working-hours/${day}`, body, token);
+}
+
+export function updateBusinessEngagement(
+  body: {
+    reminderTime: number;
+    followUpDays: number;
+    winbackDays: number;
+    reviewRequestEnabled: boolean;
+    reviewPlatform: "google" | "facebook" | "custom";
+  },
+  token: string,
+) {
+  return updateBusiness("/business/engagement", body, token);
 }
 
 export async function reconnectWhatsApp(
