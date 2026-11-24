@@ -323,6 +323,9 @@ export default function CustomersPage() {
       <CustomerDetailSheet
         customerId={viewingCustomerId}
         onOpenChange={(open) => !open && setViewingCustomerId(null)}
+        onMessage={(customer) =>
+          router.push(`/dashboard/inbox?customerId=${customer._id}`)
+        }
         onEdit={(customer) => {
           setViewingCustomerId(null);
           openEdit(customer);

@@ -1,4 +1,4 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import { AuthProvider } from "@/components/auth-provider";
 import { QueryProvider } from "@/components/query-provider";
 import "./globals.css";
@@ -12,6 +12,11 @@ export const metadata: Metadata = {
   description:
     "Manage WhatsApp conversations, bookings, reminders, campaigns, and customer context from one focused workspace.",
   applicationName: "Zario",
+  appleWebApp: {
+    capable: true,
+    statusBarStyle: "default",
+    title: "Zario",
+  },
   robots: { index: true, follow: true },
   openGraph: {
     type: "website",
@@ -20,6 +25,10 @@ export const metadata: Metadata = {
     description:
       "A focused workspace for WhatsApp conversations, bookings, reminders, and customer operations.",
   },
+};
+
+export const viewport: Viewport = {
+  themeColor: "#0f766e",
 };
 
 export default function RootLayout({

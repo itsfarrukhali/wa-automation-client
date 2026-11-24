@@ -1,6 +1,13 @@
 "use client";
 
-import { Loader2, Pencil, Phone, Mail, CalendarClock } from "lucide-react";
+import {
+  CalendarClock,
+  Loader2,
+  Mail,
+  MessageCircle,
+  Pencil,
+  Phone,
+} from "lucide-react";
 import {
   Sheet,
   SheetContent,
@@ -16,10 +23,12 @@ export function CustomerDetailSheet({
   customerId,
   onOpenChange,
   onEdit,
+  onMessage,
 }: {
   customerId: string | null;
   onOpenChange: (open: boolean) => void;
   onEdit: (customer: Customer) => void;
+  onMessage: (customer: Customer) => void;
 }) {
   const { data: customer, isLoading } = useCustomer(customerId);
   const { data: bookingsData } = useCustomerBookings(customerId);
@@ -50,6 +59,13 @@ export function CustomerDetailSheet({
                   }
                 >
                   {customer.status}
+                </Badge>
+                <Badge
+                  variant={customer.whatsappOptIn ? "success" : "secondary"}
+                >
+                  {customer.whatsappOptIn
+                    ? "WhatsApp permission recorded"
+                    : "No WhatsApp permission"}
                 </Badge>
               </div>
 
@@ -123,10 +139,28 @@ export function CustomerDetailSheet({
                 </div>
               </div>
 
-              <Button className="w-full" onClick={() => onEdit(customer)}>
-                <Pencil className="size-4" />
-                Edit customer
-              </Button>
+              <div className="grid gap-2 sm:grid-cols-2">
+                <Button
+                  variant="outline"
+                  onClick={() => onEdit(customer)}
+                >
+                  <Pencil className="size-4" />
+                  Edit customer
+                </Button>
+                <Button
+                  disabled={!customer.whatsappOptIn}
+                  onClick={() => onMessage(customer)}
+                >
+                  <MessageCircle className="size-4" />
+                  Message customer
+                </Button>
+              </div>
+              {!customer.whatsappOptIn && (
+                <p className="text-xs text-muted-foreground">
+                  Record the customer&apos;s WhatsApp permission before sending
+                  a message.
+                </p>
+              )}
             </div>
           </>
         )}
