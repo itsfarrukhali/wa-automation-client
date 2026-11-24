@@ -2,9 +2,23 @@ import type { NextConfig } from "next";
 import path from "node:path";
 import { withSentryConfig } from "@sentry/nextjs/config";
 
+const configuredApiUrl = process.env.BACKEND_API_ORIGIN ?? process.env.NEXT_PUBLIC_API_BASE_URL;
+const backendOrigin =
+  configuredApiUrl && /^https?:\/\//.test(configuredApiUrl)
+    ? configuredApiUrl.replace(/\/api\/v1\/?$/, "").replace(/\/$/, "")
+    : "https://wa-automation-server-vyzg.onrender.com";
+
 const nextConfig: NextConfig = {
   reactStrictMode: true,
   outputFileTracingRoot: path.join(__dirname),
+  async rewrites() {
+    return [
+      {
+        source: "/api/v1/:path*",
+        destination: `${backendOrigin}/api/v1/:path*`,
+      },
+    ];
+  },
   async headers() {
     return [
       {

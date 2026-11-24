@@ -1,6 +1,11 @@
 // src/lib/api.ts
+// Production browser requests stay on the frontend origin and are proxied by
+// Next.js. This keeps the httpOnly refresh cookie first-party even when the
+// API itself is hosted on a different provider.
 export const API_BASE_URL =
-  process.env.NEXT_PUBLIC_API_BASE_URL ?? "http://localhost:3000/api/v1";
+  process.env.NODE_ENV === "production"
+    ? "/api/v1"
+    : (process.env.NEXT_PUBLIC_API_BASE_URL ?? "http://localhost:3000/api/v1");
 
 type ApiOptions = RequestInit & {
   token?: string | null;
