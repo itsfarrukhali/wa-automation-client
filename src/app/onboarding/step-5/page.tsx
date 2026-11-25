@@ -31,10 +31,7 @@ export default function OnboardingStep5Page() {
     const body = {
       phoneNumberId: String(form.get("phoneNumberId") ?? "").trim(),
       wabaId: String(form.get("wabaId") ?? "").trim() || undefined,
-      displayPhoneNumber:
-        String(form.get("displayPhoneNumber") ?? "").trim() || undefined,
-      verifiedName: String(form.get("verifiedName") ?? "").trim() || undefined,
-      accessToken: String(form.get("accessToken") ?? "").trim() || undefined,
+      accessToken: String(form.get("accessToken") ?? "").trim(),
     };
 
     try {
@@ -58,8 +55,9 @@ export default function OnboardingStep5Page() {
       <CardHeader>
         <CardTitle>Connect WhatsApp Business</CardTitle>
         <p className="text-sm text-muted-foreground">
-          Get these values from your Meta WhatsApp Business Cloud API app. You
-          can skip the access token now and add it later from Settings.
+          Connect your business&apos;s own WhatsApp number. Ask your setup contact
+          for the Phone Number ID, WhatsApp Business Account ID, and access
+          token. Zario checks these with Meta before finishing setup.
         </p>
       </CardHeader>
       <CardContent>
@@ -67,25 +65,14 @@ export default function OnboardingStep5Page() {
           <Field label="Phone Number ID" error={errors.phoneNumberId}>
             <Input name="phoneNumberId" required placeholder="1029384756" />
           </Field>
-          <Field label="WABA ID (optional)" error={errors.wabaId}>
-            <Input name="wabaId" placeholder="9876543210" />
+          <Field label="WhatsApp Business Account ID" error={errors.wabaId}>
+            <Input name="wabaId" required placeholder="9876543210" />
           </Field>
-          <div className="grid gap-4 sm:grid-cols-2">
-            <Field
-              label="Display phone number"
-              error={errors.displayPhoneNumber}
-            >
-              <Input name="displayPhoneNumber" placeholder="+92 300 1234567" />
-            </Field>
-            <Field label="Verified business name" error={errors.verifiedName}>
-              <Input name="verifiedName" placeholder="Zario Salon" />
-            </Field>
-          </div>
           <Field
-            label="Access token (optional for now)"
+            label="Access token"
             error={errors.accessToken}
           >
-            <Input name="accessToken" type="password" placeholder="EAAG..." />
+            <Input name="accessToken" type="password" required autoComplete="off" placeholder="Paste your Meta access token" />
           </Field>
 
           {formError && (
